@@ -1,18 +1,3 @@
-dataSource {
-    pooled = true
-    driverClassName = "org.hsqldb.jdbcDriver"
-    username = "sa"
-    password = ""
-    logSql = true
-    properties {
-        defaultAutoCommit = false
-    }
-}
-hibernate {
-    cache.use_second_level_cache = true
-    cache.use_query_cache = true
-    cache.provider_class = 'net.sf.ehcache.hibernate.EhCacheProvider'
-}
 /*
  * Copyright 2011 the original author or authors.
  *
@@ -28,6 +13,22 @@ hibernate {
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+hibernate {
+    cache.use_second_level_cache = true
+    cache.use_query_cache = true
+    cache.provider_class = 'net.sf.ehcache.hibernate.EhCacheProvider'
+}
+dataSource {
+    pooled = true
+    driverClassName = "org.hsqldb.jdbcDriver"
+    username = "sa"
+    password = ""
+    logSql = true
+    properties {
+        defaultAutoCommit = false
+    }
+}
 
 // environment specific settings
 environments {

@@ -1,6 +1,3 @@
-grails.project.class.dir = "target/classes"
-grails.project.test.class.dir = "target/test-classes"
-grails.project.test.reports.dir = "target/test-reports"
 /*
  * Copyright 2011 the original author or authors.
  *
@@ -16,6 +13,10 @@ grails.project.test.reports.dir = "target/test-reports"
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+grails.project.class.dir = "target/classes"
+grails.project.test.class.dir = "target/test-classes"
+grails.project.test.reports.dir = "target/test-reports"
 
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
 grails.project.dependency.resolution = {
