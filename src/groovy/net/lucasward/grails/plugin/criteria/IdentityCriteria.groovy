@@ -20,6 +20,8 @@ import org.hibernate.envers.query.AuditEntity
 import org.hibernate.envers.query.AuditQuery
 
 /**
+ * Query by identity.  Envers treats the hibernate identity as a different criteria than a property name.
+ *
  * @author Lucas Ward
  */
 class IdentityCriteria implements EnversCriteria {

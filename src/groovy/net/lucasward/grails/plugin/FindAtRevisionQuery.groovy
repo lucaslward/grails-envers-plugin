@@ -21,6 +21,8 @@ import org.hibernate.envers.AuditReader
 import org.hibernate.envers.AuditReaderFactory
 
 /**
+ * Query for finding a particular class file at a particular revision.
+ *
  * @author Lucas Ward
  */
 class FindAtRevisionQuery {

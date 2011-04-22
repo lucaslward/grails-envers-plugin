@@ -30,6 +30,9 @@ import net.lucasward.grails.plugin.criteria.IdentityCriteria
 import net.lucasward.grails.plugin.criteria.PropertyNameCriteria
 
 /**
+ * Support classes for the plugin.  it's easier to test some of these methods separately than if they were in the main plugin file.  Most of the
+ * dynamic methods are added in this class.
+ *
  * @author Lucas Ward
  */
 class EnversPluginSupport {

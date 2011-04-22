@@ -20,6 +20,8 @@ import org.hibernate.envers.query.AuditEntity
 import org.hibernate.envers.query.AuditQuery
 
 /**
+ * Create a query based on a property name.  Similar to hibernate critiera in that the property name is the java object property name.
+ *
  * @author Lucas Ward
  */
 class PropertyNameCriteria implements EnversCriteria {

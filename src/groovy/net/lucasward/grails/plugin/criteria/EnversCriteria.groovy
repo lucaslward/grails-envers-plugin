@@ -19,6 +19,10 @@ package net.lucasward.grails.plugin.criteria
 import org.hibernate.envers.query.AuditQuery
 
 /**
+ * Interface for envers criteria.  It's necessary because there are multiple different types of criteria to add.  For example, querying
+ * based off of an identity is very different from querying by a property name.  And in some cases it's best to add no criteria, and it's
+ * easier to have a no-op implementation.
+ *
  * @author Lucas Ward
  */
 interface EnversCriteria {
