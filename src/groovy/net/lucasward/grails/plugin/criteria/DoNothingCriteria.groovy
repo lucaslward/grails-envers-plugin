@@ -18,6 +18,9 @@ package net.lucasward.grails.plugin.criteria
 
 import org.hibernate.envers.query.AuditQuery
 
+/**
+ * @author Lucas Ward
+ */
 class DoNothingCriteria implements EnversCriteria{
 
     def addCriteria(AuditQuery query, Class clazz, String propertyName, Object argument) {

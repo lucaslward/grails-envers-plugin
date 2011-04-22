@@ -19,6 +19,9 @@ package net.lucasward.grails.plugin.criteria
 import org.hibernate.envers.query.AuditEntity
 import org.hibernate.envers.query.AuditQuery
 
+/**
+ * @author Lucas Ward
+ */
 class PropertyNameCriteria implements EnversCriteria {
 
     def addCriteria(AuditQuery query, Class clazz, String propertyName, Object argument) {

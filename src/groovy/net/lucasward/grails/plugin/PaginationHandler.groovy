@@ -18,6 +18,9 @@ package net.lucasward.grails.plugin
 
 import org.hibernate.envers.query.AuditQuery
 
+/**
+ * @author Lucas Ward
+ */
 class PaginationHandler {
 
     def addPagination(AuditQuery query, Map parameters) {

@@ -16,6 +16,9 @@
 
 package net.lucasward.grails.plugin
 
+/**
+ * @author Lucas Ward
+ */
 class StubSpringSecurityService {
 
     def currentUser

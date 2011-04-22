@@ -19,6 +19,9 @@ package net.lucasward.grails.plugin.criteria
 import org.hibernate.envers.query.AuditEntity
 import org.hibernate.envers.query.AuditQuery
 
+/**
+ * @author Lucas Ward
+ */
 class IdentityCriteria implements EnversCriteria {
 
     @Override def addCriteria(AuditQuery query, Class clazz, String propertyName, Object argument) {

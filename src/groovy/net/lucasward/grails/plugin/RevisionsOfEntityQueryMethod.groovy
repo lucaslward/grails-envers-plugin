@@ -23,6 +23,9 @@ import org.hibernate.envers.query.AuditQuery
 import net.lucasward.grails.plugin.criteria.EnversCriteria
 import net.lucasward.grails.plugin.criteria.DoNothingCriteria
 
+/**
+ * @author Lucas Ward
+ */
 class RevisionsOfEntityQueryMethod {
 
     SessionFactory sessionFactory

@@ -20,6 +20,9 @@ import org.hibernate.SessionFactory
 import org.hibernate.envers.AuditReader
 import org.hibernate.envers.AuditReaderFactory
 
+/**
+ * @author Lucas Ward
+ */
 class GetCurrentRevisionQuery {
 
     SessionFactory sessionFactory
