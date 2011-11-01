@@ -16,7 +16,9 @@
 
 package net.lucasward.grails.plugin.inheritance
 
+import org.hibernate.envers.Audited
 
+@Audited
 abstract class AbstractPlayer {
 
     String name

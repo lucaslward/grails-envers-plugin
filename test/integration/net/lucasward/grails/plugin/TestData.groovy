@@ -17,8 +17,6 @@
 package net.lucasward.grails.plugin
 
 import org.hibernate.Session
-import org.joda.time.DateTime
-
 
 class TestData {
 
@@ -107,16 +105,24 @@ class TestData {
         return customer
     }
 
-    static def create2OrderEntriesWith1Modification = { Customer customer, DateTime time ->
+    static def create2OrderEntriesWith1Modification = { Customer customer, Date time ->
         Customer.withTransaction {
-            OrderEntry order = new OrderEntry(date:time.minusDays(1).toDate(),amount:5.3,numberOfItems:2,customer:customer)
+            OrderEntry order = new OrderEntry(
+                    date: time - 1,
+                    amount: 5.3,
+                    numberOfItems: 2,
+                    customer: customer)
             order.save()
             customer.orders << order
             customer.save(flush:true)
         }
 
         Customer.withTransaction {
-            OrderEntry order = new OrderEntry(date:time.toDate(),amount:5.3,numberOfItems:2,customer:customer)
+            OrderEntry order = new OrderEntry(
+                    date: time,
+                    amount: 5.3,
+                    numberOfItems: 2,
+                    customer: customer)
             order.save()
             customer.orders << order
             customer.save(flush:true)

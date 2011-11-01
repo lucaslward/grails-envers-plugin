@@ -16,12 +16,11 @@
 
 package net.lucasward.grails.plugin
 
+import net.lucasward.grails.plugin.criteria.DoNothingCriteria
+import net.lucasward.grails.plugin.criteria.EnversCriteria
 import org.hibernate.SessionFactory
 import org.hibernate.envers.AuditReaderFactory
-import org.hibernate.envers.query.AuditQueryCreator
 import org.hibernate.envers.query.AuditQuery
-import net.lucasward.grails.plugin.criteria.EnversCriteria
-import net.lucasward.grails.plugin.criteria.DoNothingCriteria
 
 /**
  * @author Lucas Ward
@@ -50,11 +49,7 @@ class RevisionsOfEntityQueryMethod {
         criteria.addCriteria(query, clazz, propertyName, argument)
         auditOrder.addOrder(query, parameters)
         paginationHandler.addPagination(query, parameters)
-        def results = query.resultList
-        def collapsedResults = []
-        results.each {
-            collapsedResults << EnversPluginSupport.collapseRevision(it)
-        }
-        return collapsedResults
+
+        return query.resultList.collect { EnversPluginSupport.collapseRevision(it) }
     }
 }

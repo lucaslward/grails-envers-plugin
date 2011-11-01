@@ -18,6 +18,7 @@ package net.lucasward.grails.plugin.inheritance.entry
 
 import org.hibernate.envers.Audited
 
+@Audited
 abstract class AbstractPerformanceYear {
 
     Date date

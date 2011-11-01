@@ -27,28 +27,20 @@ grails.project.dependency.resolution = {
     }
     log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
     repositories {
-        grailsPlugins()
-        grailsHome()
-        grailsCentral()
-
-        mavenRepo "https://repository.jboss.org/nexus/content/groups/public-jboss/"
-
-        // uncomment the below to enable remote dependency resolution
-        // from public Maven repositories
-        mavenLocal()
-        mavenCentral()
+        inherit false
+        mavenRepo "http://eats-project.pqa.local/artifactory/libs-release"
+        mavenRepo "http://eats-project.pqa.local/artifactory/libs-snapshot"
+        mavenRepo "http://eats-project.pqa.local/artifactory/plugins-release"
+        mavenRepo "http://eats-project.pqa.local/artifactory/plugins-snapshot"
     }
+
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
 
         // runtime 'mysql:mysql-connector-java:5.1.13'
 
-        compile ('org.jboss.envers:jboss-envers:1.2.3-hibernate-3.3') {
+        compile ('org.hibernate:hibernate-envers:3.6.7.Final') {
             excludes 'org.hibernate','commons-logging', 'javassist'
         }
-        compile 'mysql:mysql-connector-java:5.1.14'
-
-        test 'joda-time:joda-time:1.6.2'
-        test 'org.gmock:gmock:0.8.1'
     }
 }

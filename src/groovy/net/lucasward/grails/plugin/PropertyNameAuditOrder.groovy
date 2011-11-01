@@ -16,10 +16,10 @@
 
 package net.lucasward.grails.plugin
 
-import org.hibernate.envers.query.order.AuditOrder
-import org.hibernate.envers.query.AuditQuery
 import org.hibernate.envers.query.AuditEntity
+import org.hibernate.envers.query.AuditQuery
 import org.hibernate.envers.query.criteria.AuditProperty
+import org.hibernate.envers.query.order.AuditOrder
 
 /**
  * Because envers can only be queried with a criteria like interface, if a user wants to do something like
@@ -41,22 +41,21 @@ import org.hibernate.envers.query.criteria.AuditProperty
  */
 class PropertyNameAuditOrder {
 
-    public void addOrder(AuditQuery query, Map parameters){
+    public void addOrder(AuditQuery query, Map parameters) {
 
         //we'll only add sort if it's requested, otherwise use envers default (i.e. AuditOrder isn't required)
-        if(!parameters["sort"]){
+        if (!parameters.sort) {
             return
         }
 
-        def propertyName = parameters["sort"]
-        String order = parameters["order"]
+        String propertyName = parameters.sort
+        String order = parameters.order
 
         AuditProperty auditProperty = getPropertyByName(propertyName)
         AuditOrder auditOrder
-        if(order?.toLowerCase() == "desc"){
+        if (order?.toLowerCase() == "desc") {
             auditOrder = auditProperty.desc()
-        }
-        else{
+        } else {
             auditOrder = auditProperty.asc()
         }
         query.addOrder(auditOrder)
@@ -64,26 +63,23 @@ class PropertyNameAuditOrder {
     }
 
     //If the name is revisionNumber, we'll use that, otherwise assume it is a property
-    private AuditProperty getPropertyByName(propertyName){
-        def revisionProperty = getRevisionProperty(propertyName)
-        if(revisionProperty != null){
+    private AuditProperty getPropertyByName(String propertyName) {
+        String revisionProperty = getRevisionProperty(propertyName)
+        if (revisionProperty != null) {
             return AuditEntity.revisionProperty(revisionProperty)
-        }
-        else if(propertyName == "revisionNumber"){
+        } else if (propertyName == 'revisionNumber') {
             return AuditEntity.revisionNumber()
-        }
-        else if(propertyName == "revisionType"){
+        } else if (propertyName == 'revisionType') {
             return AuditEntity.revisionType()
-        }
-        else{
+        } else {
             return AuditEntity.property(propertyName)
         }
     }
 
     //if the propertyname starts with revisionProperty. then it's a revision property
-    private String getRevisionProperty(String propertyName){
-        if(propertyName.startsWith("revisionProperty.")){
-            return propertyName.split("revisionProperty.")[1]
+    private String getRevisionProperty(String propertyName) {
+        if (propertyName.startsWith('revisionProperty.')) {
+            return propertyName.split('revisionProperty.')[1]
         }
 
         return null

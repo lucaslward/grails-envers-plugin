@@ -16,87 +16,80 @@
 
 package net.lucasward.grails.plugin
 
+import grails.test.GrailsMock
+import grails.test.mixin.TestFor
 import org.codehaus.groovy.grails.commons.DefaultGrailsDomainClass
 import org.codehaus.groovy.grails.commons.GrailsDomainClass
-import org.codehaus.groovy.grails.commons.DefaultGrailsClass
+import org.hibernate.SessionFactory
 import org.hibernate.envers.DefaultRevisionEntity
 import org.hibernate.envers.RevisionType
-import org.gmock.WithGMock
-import org.hibernate.SessionFactory
-import grails.test.GrailsUnitTestCase
-import org.hibernate.envers.Audited
-import org.codehaus.groovy.grails.orm.hibernate.GrailsHibernateDomainClass
 
-@WithGMock
-class EnversPluginSupportTests extends GrailsUnitTestCase {
+@TestFor(Customer)
+class EnversPluginSupportTests {
 
-    void testIsAudited(){
-        Address address = new Address()
+    void testIsAudited() {
         def gc = new DefaultGrailsDomainClass(Address)
         assert EnversPluginSupport.isAudited(gc) == true
     }
 
-    void testIsNotAudited(){
+    void testIsNotAudited() {
         def gc = new DefaultGrailsDomainClass(State)
         assert EnversPluginSupport.isAudited(gc) == false
     }
 
-    void testIsAuditedAtFieldLevelOnly(){
+    void testIsAuditedAtFieldLevelOnly() {
         def gc = new DefaultGrailsDomainClass(User)
         assert EnversPluginSupport.isAudited(gc) == true
     }
 
-    void testCollapseRevisions(){
-        Customer user = new Customer(name:'collapseTest');
-        DefaultRevisionEntity revisionEntity = new DefaultRevisionEntity(id:1)
+    void testCollapseRevisions() {
+        Customer user = new Customer(name: 'collapseTest');
+        DefaultRevisionEntity revisionEntity = new DefaultRevisionEntity(id: 1)
         RevisionType revType = RevisionType.ADD
-        def revision = [user,revisionEntity,revType]
+        def revision = [user, revisionEntity, revType]
         def collapsed = EnversPluginSupport.collapseRevision(revision)
+
         assert collapsed instanceof Customer
         assert collapsed.name == user.name
         assert collapsed.revisionEntity == revisionEntity
         assert collapsed.revisionType == RevisionType.ADD
     }
 
-    void testCollapseRevisionsWithTooSmallArray(){
-        try{
+    void testCollapseRevisionsWithTooSmallArray() {
+        shouldFail {
             EnversPluginSupport.collapseRevision([])
-            fail()
-        }
-        catch(Exception ex){
-            //we should get an exception
         }
     }
 
-    void testCollapseRevisionsWithTooLargeArray(){
-        try{
-            EnversPluginSupport.collapseRevision([1,2,3,4])
-            fail()
-        }
-        catch(Exception ex){
-            //we should get an exception
+    void testCollapseRevisionsWithTooLargeArray() {
+        shouldFail {
+            EnversPluginSupport.collapseRevision([1, 2, 3, 4])
         }
     }
 
-    void testGenerateFindAllMethods(){
-        mockDomain Customer
-        SessionFactory sessionFactory = mock(SessionFactory)
+    void testGenerateFindAllMethods() {
+        GrailsMock sessionFactory = mockFor(SessionFactory)
         GrailsDomainClass gdc = new DefaultGrailsDomainClass(Customer.class)
-        EnversPluginSupport.generateFindAllMethods(gdc,sessionFactory)
+        EnversPluginSupport.generateFindAllMethods(gdc, sessionFactory.createMock())
+
         assert Customer.metaClass.getStaticMetaMethod("findAllRevisionsByEmail", ["Email"]) != null
         assert Customer.metaClass.getStaticMetaMethod("findAllRevisionsByName", ["Email"]) != null
         assert Customer.metaClass.getStaticMetaMethod("findAllRevisionsByAddress", ["Email"]) != null
         assert Customer.metaClass.getStaticMetaMethod("findAllRevisionsById", ["Email"]) != null
+
+        sessionFactory.verify()
     }
 
-    void testGenerateAuditReaderMethods(){
-        mockDomain Customer
-        SessionFactory sessionFactory = mock(SessionFactory)
+    void testGenerateAuditReaderMethods() {
+        GrailsMock sessionFactory = mockFor(SessionFactory)
         GrailsDomainClass gdc = new DefaultGrailsDomainClass(Customer.class)
-        EnversPluginSupport.generateAuditReaderMethods(gdc,sessionFactory)
+        EnversPluginSupport.generateAuditReaderMethods(gdc, sessionFactory.createMock())
+
         assert Customer.metaClass.getStaticMetaMethod("getCurrentRevision", []) != null
         assert Customer.metaClass.getMetaMethod("getRevisions", []) != null
         assert Customer.metaClass.getMetaMethod("findAtRevision", [3]) != null
+
+        sessionFactory.verify()
     }
 
 }
