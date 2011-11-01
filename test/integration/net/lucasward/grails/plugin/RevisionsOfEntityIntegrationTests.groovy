@@ -16,21 +16,18 @@
 
 package net.lucasward.grails.plugin
 
-import grails.test.*
+import org.hibernate.Session
+import org.hibernate.SessionFactory
 import org.hibernate.envers.AuditReader
 import org.hibernate.envers.AuditReaderFactory
-import org.hibernate.SessionFactory
-
-import org.hibernate.Session
-
 import org.hibernate.envers.RevisionType
 import org.hibernate.envers.query.AuditEntity
-import org.joda.time.DateTime
-import org.hibernate.envers.query.order.AuditOrder
+import static net.lucasward.grails.plugin.TestData.getCreate2OrderEntriesWith1Modification
+import static net.lucasward.grails.plugin.TestData.getCreateGormCustomerWith2Modifications
+import static net.lucasward.grails.plugin.TestData.getCreateHibernateCustomerWith1Modification
+import static net.lucasward.grails.plugin.TestData.getDeleteAuditTables
 
-import static TestData.*
-
-class RevisionsOfEntityIntegrationTests extends GrailsUnitTestCase {
+class RevisionsOfEntityIntegrationTests extends GroovyTestCase {
 
     def transactional = false
 
@@ -47,7 +44,7 @@ class RevisionsOfEntityIntegrationTests extends GrailsUnitTestCase {
         session = sessionFactory.currentSession
         reader = AuditReaderFactory.get(sessionFactory.currentSession)
 
-        currentUser = new User(id:2)
+        currentUser = new User(userName: 'foo', realName: 'Bar').save(flush:  true, failOnError: true)
         SpringSecurityServiceHolder.springSecurityService.currentUser = currentUser
     }
 
@@ -57,16 +54,16 @@ class RevisionsOfEntityIntegrationTests extends GrailsUnitTestCase {
         deleteAuditTables(session)
     }
 
-    void testFindAllRevisions(){
+    void testFindAllRevisions() {
         createGormCustomerWith2Modifications()
         def results = Customer.findAllRevisions()
         assertGormCustomerRevisions(results)
     }
 
     //Test that we can view the latest changes first, not the first change
-    void testSortFindAllRevisions(){
+    void testSortFindAllRevisions() {
         createGormCustomerWith2Modifications()
-        def results = Customer.findAllRevisions(sort:"email",order:"asc")
+        def results = Customer.findAllRevisions(sort: "email", order: "asc")
         assert results.size() == 3
         assert results[0].email == "tester2@gorm.org"
         UserRevisionEntity entity = results[0].revisionEntity
@@ -77,95 +74,93 @@ class RevisionsOfEntityIntegrationTests extends GrailsUnitTestCase {
     }
 
     //Test that we can view the latest changes first, not the first change
-    void testFindAllRevisionsWithMaxParameter(){
+    void testFindAllRevisionsWithMaxParameter() {
         createGormCustomerWith2Modifications()
-        def results = Customer.findAllRevisions(max:1)
+        def results = Customer.findAllRevisions(max: 1)
         assert results.size() == 1
     }
 
     //Test that we can paginate
-    void testPaginateFindAllRevisions(){
+    void testPaginateFindAllRevisions() {
         createGormCustomerWith2Modifications()
-        def results = Customer.findAllRevisions(max:1)
+        def results = Customer.findAllRevisions(max: 1)
         assert results.size() == 1
         assert results[0].email == "tester@gorm.org"
 
-        results = Customer.findAllRevisions(max:1,offset:1)
+        results = Customer.findAllRevisions(max: 1, offset: 1)
 
         assert results[0].email == "tester2@gorm.org"
 
-        results = Customer.findAllRevisions(max:1,offset:2)
+        results = Customer.findAllRevisions(max: 1, offset: 2)
 
         assert results[0].email == "tester3@gorm.org"
     }
 
-    void testFindRevisionsByPrimitiveProperty(){
+    void testFindRevisionsByPrimitiveProperty() {
         createGormCustomerWith2Modifications()
         def revisions = Customer.findAllRevisionsByName("PureGorm")
         assertGormCustomerRevisions(revisions)
     }
 
-    void testRetrievingChangesForASpecificUser(){
+    void testRetrievingChangesForASpecificUser() {
         createGormCustomerWith2Modifications()
         createHibernateCustomerWith1Modification()
 
         Customer gormUser = Customer.findByName("PureGorm")
-        def revisions = reader.createQuery().forRevisionsOfEntity(Customer.class, false, true)
-            .add(AuditEntity.id().eq(gormUser.id)).resultList
+        def revisions = reader.createQuery().forRevisionsOfEntity(Customer.class, false, true).add(AuditEntity.id().eq(gormUser.id)).resultList
         //assertGormCustomerRevisions(revisions)
     }
 
     //Id has to be handled differently, so we should test it separately
-    void testFindRevisionsById(){
+    void testFindRevisionsById() {
         Customer customer = createGormCustomerWith2Modifications()
         def revisions = Customer.findAllRevisionsById(customer.id)
         assertGormCustomerRevisions(revisions)
     }
 
     //if I search by a clas, such as address, does it work?
-    void testFindByAssociatedDomainClass(){
+    void testFindByAssociatedDomainClass() {
         Customer customer = createGormCustomerWith2Modifications()
         def revisions = Customer.findAllRevisionsByAddress(customer.address)
         assertGormCustomerRevisions(revisions)
     }
 
     //Test that we can view the latest changes first, not the first change
-    void testOrderByDateDesc(){
+    void testOrderByDateDesc() {
         createGormCustomerWith2Modifications()
-        def revisions = reader.createQuery().forRevisionsOfEntity(Customer.class,false,true).addOrder(AuditEntity.revisionNumber().desc()).resultList
+        def revisions = reader.createQuery().forRevisionsOfEntity(Customer.class, false, true).addOrder(AuditEntity.revisionNumber().desc()).resultList
         assert revisions[0][2] == RevisionType.MOD
     }
 
     //Test that we can view the latest changes first, not the first change
-    void testOrderByDateDescending(){
+    void testOrderByDateDescending() {
         createGormCustomerWith2Modifications()
-        def results = Customer.findAllRevisionsByName("PureGorm",[sort:"email",order:"asc"])
+        def results = Customer.findAllRevisionsByName("PureGorm", [sort: "email", order: "asc"])
         assert results.size() == 3
         assert results[0].email == "tester2@gorm.org"
         assert results[1].email == "tester3@gorm.org"
         assert results[2].email == "tester@gorm.org"
     }
 
-    void testFindAllWithSortAndMax(){
+    void testFindAllWithSortAndMax() {
         createGormCustomerWith2Modifications()
-        def results = Customer.findAllRevisionsByName("PureGorm",[sort:"email",order:"asc", max:2])
+        def results = Customer.findAllRevisionsByName("PureGorm", [sort: "email", order: "asc", max: 2])
         assert results.size() == 2
         assert results[0].email == "tester2@gorm.org"
         assert results[1].email == "tester3@gorm.org"
     }
 
 
-    void testRetrieveCustomersCreatedInTheSameTransaction(){
+    void testRetrieveCustomersCreatedInTheSameTransaction() {
         def customers = TestData.create2CustomersInOneTransaction()
         def results = Customer.findAllRevisionsByEmail("tester@envers.org")
         assert results.size() == 3
         assert results[0].revisionEntity == results[1].revisionEntity
     }
 
-    void testRevisionsWithCollection(){
+    void testRevisionsWithCollection() {
         Customer customer = createHibernateCustomerWith1Modification()
-        DateTime today = new DateTime()
-        create2OrderEntriesWith1Modification(customer, today)
+        create2OrderEntriesWith1Modification(customer, new Date())
 
         def revisions = Customer.findAllRevisionsById(customer.id)
         assert revisions.size() == 2
@@ -175,31 +170,31 @@ class RevisionsOfEntityIntegrationTests extends GrailsUnitTestCase {
     }
 
     //test to see if Envers will work with a field level annotated domain class
-    void testFieldLevelAudit(){
+    void testFieldLevelAudit() {
         def id
-        User.withTransaction(){
-            User user = new User(userName:"field",realName:"Annotated")
-            user.save(flush:true)
+        User.withTransaction() {
+            User user = new User(userName: "field", realName: "Annotated")
+            user.save(flush: true)
             id = user.id
         }
 
-        User.withTransaction(){
+        User.withTransaction() {
             User user = User.get(id)
             user.userName = "newField"
-            user.save(flush:true)
+            user.save(flush: true)
         }
 
-        User.withTransaction(){
+        User.withTransaction() {
             User user = User.get(id)
             user.realName = "Field Annotated"
-            user.save(flush:true)
+            user.save(flush: true)
         }
 
         def results = reader.createQuery().forRevisionsOfEntity(User.class, false, true).resultList
 //        assert results.size() == 2
     }
 
-    void testSaveCustomerWithoutAddress(){
+    void testSaveCustomerWithoutAddress() {
         Customer.withTransaction {
             Customer customer = new Customer(name: "PureGorm", email: "tester@gorm.org")
             customer.save(flush: true)
@@ -224,11 +219,11 @@ class RevisionsOfEntityIntegrationTests extends GrailsUnitTestCase {
     }
 
     //this doesn't work, but I'm not sure I care.  Searching by the address object itself makes more sense to me...
-//    void testFindByAssociatedDomainClassId(){
-//        User user = createGormCustomerWith2Modifications()
-//        def revisions = User.findAllRevisionsByAddress(user.address.id)
-//        assertGormCustomerRevisions(revisions)
-//    }
+    //    void testFindByAssociatedDomainClassId(){
+    //        User user = createGormCustomerWith2Modifications()
+    //        def revisions = User.findAllRevisionsByAddress(user.address.id)
+    //        assertGormCustomerRevisions(revisions)
+    //    }
 
     private def assertGormCustomerRevisions(List results) {
         assert results.size() == 3

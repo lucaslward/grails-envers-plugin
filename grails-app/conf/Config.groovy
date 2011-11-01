@@ -52,3 +52,5 @@ log4j = {
 //        console name: 'stdout', layout: pattern(conversionPattern: '%d [%t] %-5p %c  %x - %m%n')
 //    }
 }
+grails.views.default.codec="none" // none, html, base64
+grails.views.gsp.encoding="UTF-8"

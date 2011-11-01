@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-import org.hibernate.envers.event.AuditEventListener
-import org.codehaus.groovy.grails.orm.hibernate.HibernateEventListeners
 import net.lucasward.grails.plugin.EnversPluginSupport
-import org.codehaus.groovy.grails.commons.GrailsClass
-import org.hibernate.SessionFactory
-import org.hibernate.Session
-import org.hibernate.envers.AuditReaderFactory
-import org.codehaus.groovy.grails.commons.GrailsApplication
-import org.hibernate.envers.query.AuditEntity
-import org.codehaus.groovy.grails.commons.GrailsDomainClass
 import net.lucasward.grails.plugin.RevisionsOfEntityQueryMethod
+import org.codehaus.groovy.grails.commons.GrailsApplication
+import org.codehaus.groovy.grails.commons.GrailsDomainClass
+import org.codehaus.groovy.grails.orm.hibernate.HibernateEventListeners
+import org.hibernate.SessionFactory
+import org.hibernate.envers.event.AuditEventListener
 
 class EnversGrailsPlugin {
     // the plugin version
-    def version = "1.0.0"
+    def version = "2.0.0"
     // the version or versions of Grails the plugin is designed for
-    def grailsVersion = "1.3.6 > *"
+    def grailsVersion = "2.0.0 > *"
     // the other plugins this plugin depends on
     def observe = ['hibernate']
     def loadAfter = ['hibernate']
@@ -55,46 +51,22 @@ class EnversGrailsPlugin {
             "src/java/net/lucasward/grails/plugin/SpringSecurityRevisionListener.java",
             "src/java/net/lucasward/grails/plugin/SpringSecurityServiceHolder.java",
             "src/java/net/lucasward/grails/plugin/UserRevisionEntity.java",
-            "grails-app/conf/hibernate/hibernate.cfg.xml",
-            "lib/envers-1.2.2.ga-sources.jar",
-            "lib/envers-1.2.2.ga.jar"
+            "grails-app/conf/hibernate/hibernate.cfg.xml"
     ]
 
-    // TODO Fill in these fields
-    def author = "Lucas Ward"
+    def author = "Lucas Ward, Jay Hogan"
     def authorEmail = ""
     def title = "Grails Envers Plugin"
-    def description = '''\\
-Plugin to integrate grails with Hibernate Envers
-
-Proper documentation will be coming. Until then, this plugin describes usage: http://www.lucasward.net/2011/04/grails-envers-plugin.html
-'''
+    def description = 'Plugin to integrate grails with Hibernate Envers'
 
     // URL to the plugin's documentation
-    def documentation = "http://www.lucasward.net/2011/04/grails-envers-plugin.html"
+    def documentation = "http://grails.org/plugin/envers"
 
     def doWithWebDescriptor = { xml ->
-        // TODO Implement additions to web.xml (optional), this event occurs before 
+
     }
 
-/**
- * Add the listeners to Grails.  By default Grails creates it's own listeners so that you can access
- * them from domain objects.  However, it provides a hook in by looking for a bean named 'hibernateEvenListeners'
- * and applying those over the top of what it already has.  In our case, we need the below listeners, as described
- * in the envers documentation.
- *
- * TODO:Make sure that an application can still define hibernate listeners with this approach.
- *
- * 	<listener class="org.hibernate.envers.event.AuditEventListener" type="post-insert"/>
- <listener class="org.hibernate.envers.event.AuditEventListener" type="post-update"/>
- <listener class="org.hibernate.envers.event.AuditEventListener" type="post-delete"/>
- <listener class="org.hibernate.envers.event.AuditEventListener" type="pre-collection-update"/>
- <listener class="org.hibernate.envers.event.AuditEventListener" type="pre-collection-remove"/>
- <listener class="org.hibernate.envers.event.AuditEventListener" type="post-collection-recreate"/>
- */
-
     def doWithSpring = {
-        println "Configuring Envers..."
         auditEventListener(AuditEventListener)
 
         hibernateEventListeners(HibernateEventListeners) {
@@ -116,14 +88,14 @@ Proper documentation will be coming. Until then, this plugin describes usage: ht
 
     private def registerDomainMethods(GrailsApplication application, SessionFactory sessionFactory) {
         application.domainClasses.each { GrailsDomainClass gc ->
-            def getAllRevisions = new RevisionsOfEntityQueryMethod(sessionFactory,gc.clazz)
+            def getAllRevisions = new RevisionsOfEntityQueryMethod(sessionFactory, gc.clazz)
             if (EnversPluginSupport.isAudited(gc)) {
                 MetaClass mc = gc.getMetaClass()
                 mc.static.findAllRevisions = {
-                    getAllRevisions.query(null,null,[:])
+                    getAllRevisions.query(null, null, [:])
                 }
                 mc.static.findAllRevisions = { Map parameters ->
-                    getAllRevisions.query(null,null,parameters)
+                    getAllRevisions.query(null, null, parameters)
                 }
                 EnversPluginSupport.generateFindAllMethods(gc, sessionFactory)
                 EnversPluginSupport.generateAuditReaderMethods(gc, sessionFactory)
@@ -136,13 +108,9 @@ Proper documentation will be coming. Until then, this plugin describes usage: ht
     }
 
     def onChange = { event ->
-        // TODO Implement code that is executed when any artefact that this plugin is
-        // watching is modified and reloaded. The event contains: event.source,
-        // event.application, event.manager, event.ctx, and event.plugin.
     }
 
     def onConfigChange = { event ->
-        // TODO Implement code that is executed when the project configuration changes.
-        // The event is the same as for 'onChange'.
+
     }
 }

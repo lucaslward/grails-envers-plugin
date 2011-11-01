@@ -16,116 +16,104 @@
 
 package net.lucasward.grails.plugin
 
-import grails.test.GrailsUnitTestCase
-import org.hibernate.envers.query.order.AuditOrder
-import org.gmock.WithGMock
+import grails.test.GrailsMock
+import grails.test.mixin.TestFor
+import org.hibernate.envers.query.AuditEntity
 import org.hibernate.envers.query.AuditQuery
 import org.hibernate.envers.query.criteria.AuditProperty
-import org.hibernate.envers.query.AuditEntity
+import org.hibernate.envers.query.order.AuditOrder
+import org.junit.Before
 
-@WithGMock
-class PropertyNameAuditOrderTests extends GrailsUnitTestCase {
+@TestFor(Customer)
+class PropertyNameAuditOrderTests {
 
     PropertyNameAuditOrder auditOrder
-    def propertyName = "name"
+    String propertyName = "name"
 
-    AuditQuery query
-    AuditProperty property
-    AuditOrder order
-    AuditEntity auditEntity
-
-    protected void setUp() {
-        super.setUp()
-        mockLogging(PropertyNameAuditOrder)
+    @Before
+    void before() {
         auditOrder = new PropertyNameAuditOrder()
     }
 
-    private def setupMocksForPropertyName() {
-
-        setupMocks()
-        auditEntity.static.property(propertyName).returns(property)
-
-    }
-
-    private def setupMocks() {
-        query = mock(AuditQuery)
-        property = mock(AuditProperty)
-        order = mock(AuditOrder)
-        auditEntity = mock(AuditEntity)
-        query.addOrder(order)
-    }
-
     void testSortByPropertyNameDesc() {
-        setupMocksForPropertyName()
-        property.desc().returns(order)
-
-        play {
+        withMock([:]) {query, property, order, auditEntity ->
             auditOrder.addOrder(query, [sort: propertyName, order: "desc"])
         }
     }
 
     void testSortByPropertyNameAsc() {
-        setupMocksForPropertyName()
-        property.asc().returns(order)
-
-        play {
+        withMock([:]) {query, property, order, auditEntity ->
             auditOrder.addOrder(query, [sort: propertyName, order: "asc"])
         }
     }
 
     void testSortByAllCapsDirection() {
-        setupMocksForPropertyName()
-        property.desc().returns(order)
-
-        play {
+        withMock([:]) {query, property, order, auditEntity ->
             auditOrder.addOrder(query, [sort: propertyName, order: "DESC"])
         }
     }
 
     void testSortByPropertyNameDefaultOrdering() {
-        setupMocksForPropertyName()
-        property.asc().returns(order)
-
-        play {
+        withMock([:]) {query, property, order, auditEntity ->
             auditOrder.addOrder(query, [sort: propertyName])
         }
     }
 
     void testSortByPropertyNameWithNoParams() {
-        AuditQuery query = mock(AuditQuery)
-
-        play {
+        withMock([:]) {query, property, order, auditEntity ->
             auditOrder.addOrder(query, [:])
         }
     }
 
     void testSortByRevisionNumberDesc() {
-        setupMocks()
-        auditEntity.static.revisionNumber().returns(property)
-        property.desc().returns(order)
-
-        play {
+        withMock([:]) {query, property, order, auditEntity ->
             auditOrder.addOrder(query, [sort: "revisionNumber", order: "desc"])
         }
     }
 
     void testSortByRevisionType() {
-        setupMocks()
-        auditEntity.static.revisionType().returns(property)
-        property.desc().returns(order)
-
-        play {
+        withMock([:]) {query, property, order, auditEntity ->
             auditOrder.addOrder(query, [sort: "revisionType", order: "desc"])
         }
     }
 
     void testSortByRevisionProperty() {
-        setupMocks()
-        auditEntity.static.revisionProperty("userId").returns(property)
-        property.desc().returns(order)
-
-        play {
+        withMock([:]) {query, property, order, auditEntity ->
             auditOrder.addOrder(query, [sort: "revisionProperty.userId", order: "desc"])
         }
+    }
+
+    private void withMock(Map options, Closure doIt) {
+        GrailsMock queryMock = mockFor(AuditQuery, true)
+        GrailsMock propertyMock = mockFor(AuditProperty, true)
+        GrailsMock orderMock = mockFor(AuditOrder, true)
+        GrailsMock auditEntityMock = mockFor(AuditEntity, true)
+
+        propertyMock.demand.desc(0..100) {->
+            return orderMock.createMock()
+        }
+        propertyMock.demand.asc(0..100) {->
+            return orderMock.createMock()
+        }
+        auditEntityMock.demand.static.revisionProperty(0..100) {String prop ->
+            return propertyMock.createMock()
+        }
+        auditEntityMock.demand.static.revisionNumber(0..100) {->
+            return propertyMock.createMock()
+        }
+        auditEntityMock.demand.static.revisionType(0..100) {->
+            return propertyMock.createMock()
+        }
+        auditEntityMock.demand.static.property(0..100) {String prop ->
+            return propertyMock.createMock()
+        }
+        queryMock.demand.addOrder(0..100) {AuditOrder order -> }
+
+        doIt(
+                queryMock.createMock(),
+                propertyMock.createMock(),
+                orderMock.createMock(),
+                auditEntityMock.createMock()
+        )
     }
 }

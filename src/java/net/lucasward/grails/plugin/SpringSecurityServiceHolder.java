@@ -24,7 +24,6 @@ public class SpringSecurityServiceHolder implements ApplicationContextAware {
 
     public static StubSpringSecurityService springSecurityService;
 
-    @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         springSecurityService = (StubSpringSecurityService) applicationContext.getBean("springSecurityService");
     }

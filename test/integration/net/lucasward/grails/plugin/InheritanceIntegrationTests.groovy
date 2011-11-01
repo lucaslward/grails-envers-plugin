@@ -16,32 +16,35 @@
 
 package net.lucasward.grails.plugin
 
-import grails.test.GrailsUnitTestCase
-import org.hibernate.SessionFactory
-import org.hibernate.Session
-import org.hibernate.envers.AuditReader
-import org.hibernate.envers.AuditReaderFactory
-import net.lucasward.grails.plugin.inheritance.ProfessionalPlayer
 import net.lucasward.grails.plugin.inheritance.BaseballPlayer
 import net.lucasward.grails.plugin.inheritance.entry.ProfessionalPerformanceYear
-import org.joda.time.DateTime
+import org.hibernate.Session
+import org.hibernate.SessionFactory
+import org.hibernate.envers.AuditReader
+import org.hibernate.envers.AuditReaderFactory
 
 /**
  * These tests are specifically designed to test how well envers as configured in this plugin can handle
  * complex inheritance and collections configurations using gorm
  */
-class InheritanceIntegrationTests extends GrailsUnitTestCase{
+class InheritanceIntegrationTests extends GroovyTestCase {
 
-        def transactional = false
+    def transactional = false
 
     SessionFactory sessionFactory
     Session session
     AuditReader reader
 
+    User currentUser
+    
     protected void setUp() {
         super.setUp()
         session = sessionFactory.currentSession
         reader = AuditReaderFactory.get(sessionFactory.currentSession)
+
+        currentUser = new User(userName: 'foo', realName: 'Bar').save(flush: true, failOnError: true)
+        assert currentUser.id
+        SpringSecurityServiceHolder.springSecurityService.currentUser = currentUser
     }
 
     protected void tearDown() {
@@ -51,31 +54,29 @@ class InheritanceIntegrationTests extends GrailsUnitTestCase{
         //commit, we can't test it without committing the transaction, so we have to clean up afterwards
         session.createSQLQuery("delete from professional_performance_year").executeUpdate()
         session.createSQLQuery("delete from professional_performance_year_aud").executeUpdate()
-        session.createSQLQuery("delete from professional_player").executeUpdate()
-        session.createSQLQuery("delete from professional_player_aud").executeUpdate()
-        session.createSQLQuery("delete from amateur_player").executeUpdate()
         session.createSQLQuery("delete from amateur_performance_year").executeUpdate()
+        session.createSQLQuery("delete from abstract_player").executeUpdate()
+        session.createSQLQuery("delete from abstract_player_aud").executeUpdate()
+        session.createSQLQuery("delete from abstract_performance_year").executeUpdate()
+        session.createSQLQuery("delete from abstract_performance_year_aud").executeUpdate()
+        session.createSQLQuery("delete from user").executeUpdate()
+        session.createSQLQuery("delete from user_aud").executeUpdate()
+        session.createSQLQuery("delete from revinfo").executeUpdate()
     }
 
+    void testStoringEntry() {
 
-    //I can't get this test to pass.  It might be related to the issue with Hibernate that was fixed in 3.3.2.  I'll
-    //have to wait to try it with the upgrade later.  Either way, the issue is related to envers, and not any
-    //code in the plugin.
-    void testStoringEntry(){
-
-        Date today = new DateTime().toDate()
+        Date today = new Date()
 
         BaseballPlayer player
-
-
         ProfessionalPerformanceYear.withTransaction {
             player = new BaseballPlayer(name: "Albert Pujols")
-            player.save(flush:true)
-            ProfessionalPerformanceYear py = new ProfessionalPerformanceYear(date:today, salary:1.2, player:player)
-            py.save(flush:true)
+            player.save(flush: true)
+            ProfessionalPerformanceYear py = new ProfessionalPerformanceYear(date: today, salary: 1.2, player: player)
+            py.save(flush: true)
         }
-//
-//        def results = ProfessionalPerformanceYear.getAllRevisions()
-//        assert results.size() == 1
+
+        def results = ProfessionalPerformanceYear.findAllRevisions()
+        assert results.size() == 1
     }
 }
