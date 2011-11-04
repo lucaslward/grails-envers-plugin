@@ -67,7 +67,6 @@ class EnversGrailsPlugin {
     }
 
     def doWithSpring = {
-        println "Configuring Envers..."
         auditEventListener(AuditEventListener)
 
         hibernateEventListeners(HibernateEventListeners) {

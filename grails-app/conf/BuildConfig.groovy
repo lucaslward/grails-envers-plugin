@@ -39,8 +39,9 @@ grails.project.dependency.resolution = {
 
         // runtime 'mysql:mysql-connector-java:5.1.13'
 
-        compile ('org.hibernate:hibernate-envers:3.6.7.Final') {
-            excludes 'org.hibernate','commons-logging', 'javassist'
+        compile ('org.hibernate:hibernate-envers:3.6.8.Final') {
+            // Grails already includes all of the necessary dependencies
+            transitive = false
         }
     }
 }
