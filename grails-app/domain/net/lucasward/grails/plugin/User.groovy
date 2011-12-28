@@ -16,14 +16,11 @@
 
 package net.lucasward.grails.plugin
 
-import org.hibernate.envers.RelationTargetAuditMode
 import org.hibernate.envers.Audited
 
 //I'm only using field level annotations to test them
 @Audited
 class User {
-
-    long id
     String userName
     String realName
 
@@ -34,9 +31,5 @@ class User {
 
     public void setRealName(String realName) {
         this.realName = realName
-    }
-
-    public long getId() {
-        return id;
     }
 }

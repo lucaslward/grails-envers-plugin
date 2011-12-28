@@ -44,7 +44,7 @@ class RevisionsOfEntityIntegrationTests extends GroovyTestCase {
         session = sessionFactory.currentSession
         reader = AuditReaderFactory.get(sessionFactory.currentSession)
 
-        currentUser = new User(id: 2)
+        currentUser = new User(userName: 'foo', realName: 'Bar').save(flush:  true, failOnError: true)
         SpringSecurityServiceHolder.springSecurityService.currentUser = currentUser
     }
 

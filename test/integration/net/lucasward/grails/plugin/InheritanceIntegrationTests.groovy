@@ -35,10 +35,16 @@ class InheritanceIntegrationTests extends GroovyTestCase {
     Session session
     AuditReader reader
 
+    User currentUser
+    
     protected void setUp() {
         super.setUp()
         session = sessionFactory.currentSession
         reader = AuditReaderFactory.get(sessionFactory.currentSession)
+
+        currentUser = new User(userName: 'foo', realName: 'Bar').save(flush: true, failOnError: true)
+        assert currentUser.id
+        SpringSecurityServiceHolder.springSecurityService.currentUser = currentUser
     }
 
     protected void tearDown() {
@@ -48,30 +54,29 @@ class InheritanceIntegrationTests extends GroovyTestCase {
         //commit, we can't test it without committing the transaction, so we have to clean up afterwards
         session.createSQLQuery("delete from professional_performance_year").executeUpdate()
         session.createSQLQuery("delete from professional_performance_year_aud").executeUpdate()
-        session.createSQLQuery("delete from professional_player").executeUpdate()
-        session.createSQLQuery("delete from professional_player_aud").executeUpdate()
-        session.createSQLQuery("delete from amateur_player").executeUpdate()
         session.createSQLQuery("delete from amateur_performance_year").executeUpdate()
+        session.createSQLQuery("delete from abstract_player").executeUpdate()
+        session.createSQLQuery("delete from abstract_player_aud").executeUpdate()
+        session.createSQLQuery("delete from abstract_performance_year").executeUpdate()
+        session.createSQLQuery("delete from abstract_performance_year_aud").executeUpdate()
+        session.createSQLQuery("delete from user").executeUpdate()
+        session.createSQLQuery("delete from user_aud").executeUpdate()
+        session.createSQLQuery("delete from revinfo").executeUpdate()
     }
 
-    //I can't get this test to pass.  It might be related to the issue with Hibernate that was fixed in 3.3.2.  I'll
-    //have to wait to try it with the upgrade later.  Either way, the issue is related to envers, and not any
-    //code in the plugin.
     void testStoringEntry() {
 
         Date today = new Date()
 
         BaseballPlayer player
-
-
         ProfessionalPerformanceYear.withTransaction {
             player = new BaseballPlayer(name: "Albert Pujols")
             player.save(flush: true)
             ProfessionalPerformanceYear py = new ProfessionalPerformanceYear(date: today, salary: 1.2, player: player)
             py.save(flush: true)
         }
-//
-        //        def results = ProfessionalPerformanceYear.getAllRevisions()
-        //        assert results.size() == 1
+
+        def results = ProfessionalPerformanceYear.findAllRevisions()
+        assert results.size() == 1
     }
 }
