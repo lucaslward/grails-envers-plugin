@@ -31,7 +31,7 @@ grails.project.dependency.resolution = {
         grailsHome()
         grailsCentral()
 
-        mavenRepo "https://repository.jboss.org/nexus/content/groups/public-jboss/"
+        mavenRepo "https://repository.jboss.org/nexus/content/repositories/releases/"
 
         // uncomment the below to enable remote dependency resolution
         // from public Maven repositories
@@ -43,12 +43,14 @@ grails.project.dependency.resolution = {
 
         // runtime 'mysql:mysql-connector-java:5.1.13'
 
-        compile ('org.jboss.envers:jboss-envers:1.2.3-hibernate-3.3') {
+        compile ('org.hibernate:hibernate-envers:3.6.7.Final') {
             excludes 'org.hibernate','commons-logging', 'javassist'
         }
         compile 'mysql:mysql-connector-java:5.1.14'
 
-        test 'joda-time:joda-time:1.6.2'
-        test 'org.gmock:gmock:0.8.1'
+        test('joda-time:joda-time:1.6.2',
+			 'org.gmock:gmock:0.8.2') {
+			export = false
+		}
     }
 }
