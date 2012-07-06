@@ -21,5 +21,7 @@ beans = {
 
     springSecurityService(StubSpringSecurityService)
 
-    springSecurityServiceHolder(SpringSecurityServiceHolder)
+    springSecurityServiceHolder(SpringSecurityServiceHolder) {
+      springSecurityService = ref('springSecurityService')
+    }
 }
