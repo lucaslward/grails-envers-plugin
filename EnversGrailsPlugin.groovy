@@ -24,34 +24,26 @@ import org.hibernate.envers.event.AuditEventListener
 
 class EnversGrailsPlugin {
     // the plugin version
-    def version = "1.0-SNAPSHOT"
+    def version = "0.3-SNAPSHOT"
+
     // the version or versions of Grails the plugin is designed for
-    def grailsVersion = "2.0.0 > *"
+    def grailsVersion = "2.1.0 > *"
+
     // the other plugins this plugin depends on
     def observe = ['hibernate']
     def loadAfter = ['hibernate']
+
     // resources that are excluded from plugin packaging
     def pluginExcludes = [
             "grails-app/views/error.gsp",
-            "grails-app/domain/net/lucasward/grails/plugin/User.groovy",
-            "grails-app/domain/net/lucasward/grails/plugin/Customer.groovy",
-            "grails-app/domain/net/lucasward/grails/plugin/Address.groovy",
-            "grails-app/domain/net/lucasward/grails/plugin/OrderEntry.groovy",
-            "grails-app/domain/net/lucasward/grails/plugin/State.groovy",
-            "grails-app/domain/net/lucasward/grails/plugin/inheritance/AbstractPlayer.groovy",
-            "grails-app/domain/net/lucasward/grails/plugin/inheritance/AmateurPlayer.groovy",
-            "grails-app/domain/net/lucasward/grails/plugin/inheritance/ProfessionalPlayer.groovy",
-            "grails-app/domain/net/lucasward/grails/plugin/inheritance/BaseballPlayer.groovy",
-            "grails-app/domain/net/lucasward/grails/plugin/inheritance/FootballPlayer.groovy",
-            "grails-app/domain/net/lucasward/grails/plugin/inheritance/entry/AbstractPerformanceYear.groovy",
-            "grails-app/domain/net/lucasward/grails/plugin/inheritance/entry/AmateurPerformanceYear.groovy",
-            "grails-app/domain/net/lucasward/grails/plugin/inheritance/entry/ProfessionalPerformanceYear.groovy",
+            "grails-app/domain/**",
             "src/groovy/net/lucasward/grails/plugin/StubSpringSecurityService.groovy",
             "src/java/net/lucasward/grails/plugin/Book.java",
             "src/java/net/lucasward/grails/plugin/SpringSecurityRevisionListener.java",
             "src/java/net/lucasward/grails/plugin/SpringSecurityServiceHolder.java",
             "src/java/net/lucasward/grails/plugin/UserRevisionEntity.java",
-            "grails-app/conf/hibernate/hibernate.cfg.xml"
+            "grails-app/conf/hibernate/hibernate.cfg.xml",
+            "web-app/**"
     ]
 
     def author = "Lucas Ward, Jay Hogan"
@@ -63,19 +55,20 @@ class EnversGrailsPlugin {
     def documentation = "http://grails.org/plugin/envers"
 
     def doWithWebDescriptor = { xml ->
-
     }
 
     def doWithSpring = {
         auditEventListener(AuditEventListener)
 
         hibernateEventListeners(HibernateEventListeners) {
-            listenerMap = ['post-insert': auditEventListener,
-                    'post-update': auditEventListener,
-                    'post-delete': auditEventListener,
-                    'pre-collection-update': auditEventListener,
-                    'pre-collection-remove': auditEventListener,
-                    'post-collection-recreate': auditEventListener]
+            listenerMap = [
+                'post-insert': auditEventListener,
+                'post-update': auditEventListener,
+                'post-delete': auditEventListener,
+                'pre-collection-update': auditEventListener,
+                'pre-collection-remove': auditEventListener,
+                'post-collection-recreate': auditEventListener
+            ]
         }
     }
 
@@ -91,12 +84,15 @@ class EnversGrailsPlugin {
             def getAllRevisions = new RevisionsOfEntityQueryMethod(sessionFactory, gc.clazz)
             if (EnversPluginSupport.isAudited(gc)) {
                 MetaClass mc = gc.getMetaClass()
+
                 mc.static.findAllRevisions = {
                     getAllRevisions.query(null, null, [:])
                 }
+
                 mc.static.findAllRevisions = { Map parameters ->
                     getAllRevisions.query(null, null, parameters)
                 }
+
                 EnversPluginSupport.generateFindAllMethods(gc, sessionFactory)
                 EnversPluginSupport.generateAuditReaderMethods(gc, sessionFactory)
             }
@@ -104,13 +100,11 @@ class EnversGrailsPlugin {
     }
 
     def doWithApplicationContext = { applicationContext ->
-
     }
 
     def onChange = { event ->
     }
 
     def onConfigChange = { event ->
-
     }
 }
