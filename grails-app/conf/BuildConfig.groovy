@@ -25,24 +25,30 @@ grails.project.dependency.resolution = {
         // uncomment to disable ehcache
         // excludes 'ehcache'
     }
-    log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
-    repositories {
-        grailsPlugins()
-        grailsHome()
-        grailsCentral()
 
-        mavenLocal()
-        mavenCentral()
+    log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
+
+    repositories {
+      grailsPlugins()
+      grailsHome()
+      grailsCentral()
+
+      mavenLocal()
+      mavenCentral()
     }
 
     dependencies {
-        // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
-
-        // runtime 'mysql:mysql-connector-java:5.1.13'
-
-        compile ('org.hibernate:hibernate-envers:3.6.8.Final') {
+        compile ('org.hibernate:hibernate-envers:3.6.10.Final') {
             // Grails already includes all of the necessary dependencies
             transitive = false
         }
+    }
+
+    plugins {
+        build(":tomcat:$grailsVersion", ":release:2.0.3", ":rest-client-builder:1.0.2") {
+            export = false
+        }
+
+        compile(":hibernate:$grailsVersion")
     }
 }

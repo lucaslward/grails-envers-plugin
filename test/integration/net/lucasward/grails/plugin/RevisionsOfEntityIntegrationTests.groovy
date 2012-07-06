@@ -207,9 +207,9 @@ class RevisionsOfEntityIntegrationTests extends GroovyTestCase {
         assert revisionEntity.id != null
     }
 
-    void testGetRevisions() {
+    void testRetrieveRevisions() {
         Customer customer = createGormCustomerWith2Modifications()
-        List<Number> revisions = customer.getRevisions()
+        List<Number> revisions = customer.retrieveRevisions()
         assert revisions != null
         assert revisions.size() == 3
 

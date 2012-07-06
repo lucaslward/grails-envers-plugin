@@ -86,7 +86,7 @@ class EnversPluginSupportTests {
         EnversPluginSupport.generateAuditReaderMethods(gdc, sessionFactory.createMock())
 
         assert Customer.metaClass.getStaticMetaMethod("getCurrentRevision", []) != null
-        assert Customer.metaClass.getMetaMethod("getRevisions", []) != null
+        assert Customer.metaClass.getMetaMethod("retrieveRevisions", []) != null
         assert Customer.metaClass.getMetaMethod("findAtRevision", [3]) != null
 
         sessionFactory.verify()

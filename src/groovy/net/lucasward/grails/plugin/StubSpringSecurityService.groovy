@@ -23,7 +23,7 @@ class StubSpringSecurityService {
 
     def currentUser
 
-    User getCurrentUser() {
+    def getCurrentUser() {
         return currentUser
     }
 

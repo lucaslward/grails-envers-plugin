@@ -98,8 +98,14 @@ class EnversPluginSupport {
         mc.static.getCurrentRevision = {
             getCurrentRevision.query()
         }
-        mc.getRevisions = {
-            getRevisions.query(delegate.id)
+        mc.retrieveRevisions = {
+			try {
+				return getRevisions.query(delegate.id)
+			} catch (org.hibernate.envers.exception.NotAuditedException ex) {
+				// This indicates call to entity.revisions or entity.getProperties()
+				// In second case, we shouldn't throwing an exception clearly is unexpected behavior
+				return null;
+			}
         }
         mc.findAtRevision = { revisionNumber ->
             findAtRevision.query(delegate.id, revisionNumber)

@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-package net.lucasward.grails.plugin;
+package net.lucasward.grails.plugin
 
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+public class SpringSecurityServiceHolder {
 
-public class SpringSecurityServiceHolder implements ApplicationContextAware {
+    public static def springSecurityService
 
-    public static StubSpringSecurityService springSecurityService;
-
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        springSecurityService = (StubSpringSecurityService) applicationContext.getBean("springSecurityService");
+    public setSpringSecurityService(def springSecurityService) {
+        this.springSecurityService = springSecurityService
     }
+
 }
