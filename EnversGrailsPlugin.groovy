@@ -38,9 +38,9 @@ class EnversGrailsPlugin {
             "grails-app/views/error.gsp",
             "grails-app/domain/**",
             "src/groovy/net/lucasward/grails/plugin/StubSpringSecurityService.groovy",
+            "src/groovy/net/lucasward/grails/plugin/SpringSecurityRevisionListener.groovy",
+            "src/groovy/net/lucasward/grails/plugin/SpringSecurityServiceHolder.groovy",
             "src/java/net/lucasward/grails/plugin/Book.java",
-            "src/java/net/lucasward/grails/plugin/SpringSecurityRevisionListener.java",
-            "src/java/net/lucasward/grails/plugin/SpringSecurityServiceHolder.java",
             "src/java/net/lucasward/grails/plugin/UserRevisionEntity.java",
             "grails-app/conf/hibernate/hibernate.cfg.xml",
             "web-app/**"
