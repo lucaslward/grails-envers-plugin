@@ -20,11 +20,11 @@ import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.codehaus.groovy.grails.commons.GrailsDomainClass
 import org.codehaus.groovy.grails.orm.hibernate.HibernateEventListeners
 import org.hibernate.SessionFactory
-import org.hibernate.envers.event.AuditEventListener
+import net.lucasward.grails.plugin.AuditEventListenerForDefaultDatasource
 
 class EnversGrailsPlugin {
     // the plugin version
-    def version = "0.3-SNAPSHOT"
+    def version = "0.4.3"
 
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "2.1.0 > *"
@@ -58,16 +58,16 @@ class EnversGrailsPlugin {
     }
 
     def doWithSpring = {
-        auditEventListener(AuditEventListener)
+        auditEventListenerForDefaultDatasource(AuditEventListenerForDefaultDatasource)
 
         hibernateEventListeners(HibernateEventListeners) {
             listenerMap = [
-                'post-insert': auditEventListener,
-                'post-update': auditEventListener,
-                'post-delete': auditEventListener,
-                'pre-collection-update': auditEventListener,
-                'pre-collection-remove': auditEventListener,
-                'post-collection-recreate': auditEventListener
+                'post-insert': auditEventListenerForDefaultDatasource,
+                'post-update': auditEventListenerForDefaultDatasource,
+                'post-delete': auditEventListenerForDefaultDatasource,
+                'pre-collection-update': auditEventListenerForDefaultDatasource,
+                'pre-collection-remove': auditEventListenerForDefaultDatasource,
+                'post-collection-recreate': auditEventListenerForDefaultDatasource
             ]
         }
     }
