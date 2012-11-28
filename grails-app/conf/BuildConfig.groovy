@@ -30,8 +30,11 @@ grails.project.dependency.resolution = {
 
 	dependencies {
 		compile ('org.hibernate:hibernate-envers:3.6.10.Final') {
-			// Grails already includes all of the necessary dependencies
-			transitive = false
+			excludes 'ant', 'cglib', 'commons-logging', 'commons-logging-api', 'h2',
+			         'hibernate-commons-annotations', 'hibernate-core', 'hibernate-entitymanager',
+			         'hibernate-jpa-2.0-api', 'hibernate-testing', 'hibernate-tools', 'javassist',
+			         'jcl-over-slf4j', 'junit', 'mysql-connector-java', 'slf4j-api', 'slf4j-log4j12',
+			         'testng'
 		}
 	}
 
