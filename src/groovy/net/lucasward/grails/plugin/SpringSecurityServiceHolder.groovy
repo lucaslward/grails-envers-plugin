@@ -16,12 +16,11 @@
 
 package net.lucasward.grails.plugin
 
-public class SpringSecurityServiceHolder {
+class SpringSecurityServiceHolder {
 
-    public static def springSecurityService
+    static springSecurityService
 
-    public setSpringSecurityService(def springSecurityService) {
+    void setSpringSecurityService(springSecurityService) {
         this.springSecurityService = springSecurityService
     }
-
 }

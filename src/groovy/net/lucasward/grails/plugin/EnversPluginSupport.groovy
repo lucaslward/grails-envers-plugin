@@ -16,18 +16,19 @@
 
 package net.lucasward.grails.plugin
 
-import org.hibernate.SessionFactory
-
-import org.codehaus.groovy.grails.commons.GrailsDomainClass
 import java.util.concurrent.ConcurrentHashMap
-import org.hibernate.Session
-import org.hibernate.envers.AuditReaderFactory
-import org.hibernate.envers.Audited
 
-import org.springframework.core.annotation.AnnotationUtils
-import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
 import net.lucasward.grails.plugin.criteria.IdentityCriteria
 import net.lucasward.grails.plugin.criteria.PropertyNameCriteria
+
+import org.codehaus.groovy.grails.commons.GrailsDomainClass
+import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
+import org.hibernate.Session
+import org.hibernate.SessionFactory
+import org.hibernate.envers.AuditReaderFactory
+import org.hibernate.envers.Audited
+import org.hibernate.envers.exception.NotAuditedException
+import org.springframework.core.annotation.AnnotationUtils
 
 /**
  * Support classes for the plugin.  it's easier to test some of these methods separately than if they were in the main plugin file.  Most of the
@@ -37,12 +38,12 @@ import net.lucasward.grails.plugin.criteria.PropertyNameCriteria
  */
 class EnversPluginSupport {
 
-    static def getAllRevisions(Class clazz, SessionFactory sessionFactory) {
+    private static DOMAIN_INITIALIZERS = new ConcurrentHashMap()
+
+    static getAllRevisions(Class clazz, SessionFactory sessionFactory) {
         Session session = sessionFactory.currentSession
         return AuditReaderFactory.get(sessionFactory.currentSession).createQuery().forRevisionsOfEntity(clazz, false, true).resultList
     }
-
-    private static DOMAIN_INITIALIZERS = new ConcurrentHashMap()
 
     static initializeDomain(Class c) {
         synchronized (c) {
@@ -54,7 +55,7 @@ class EnversPluginSupport {
     /**
      * For right now, only the presence of the @Audited annotation on the class will mean it's annotated
      */
-    static def isAudited = { GrailsDomainClass gc ->
+    static isAudited = { GrailsDomainClass gc ->
         return AnnotationUtils.findAnnotation(gc.clazz, Audited) != null
     }
 
@@ -101,10 +102,10 @@ class EnversPluginSupport {
         mc.retrieveRevisions = {
 			try {
 				return getRevisions.query(delegate.id)
-			} catch (org.hibernate.envers.exception.NotAuditedException ex) {
+			} catch (NotAuditedException ex) {
 				// This indicates call to entity.revisions or entity.getProperties()
 				// In second case, we shouldn't throwing an exception clearly is unexpected behavior
-				return null;
+				return null
 			}
         }
         mc.findAtRevision = { revisionNumber ->
@@ -112,7 +113,7 @@ class EnversPluginSupport {
         }
     }
 
-    private static def generateFindAllMethod(GrailsDomainClassProperty prop, MetaClass mc, method) {
+    private static generateFindAllMethod(GrailsDomainClassProperty prop, MetaClass mc, method) {
         def propertyName = prop.name
         def methodName = "findAllRevisionsBy${propertyName.capitalize()}"
         mc.static."$methodName" = { argument ->

@@ -41,7 +41,7 @@ import org.hibernate.envers.query.order.AuditOrder
  */
 class PropertyNameAuditOrder {
 
-    public void addOrder(AuditQuery query, Map parameters) {
+    void addOrder(AuditQuery query, Map parameters) {
 
         //we'll only add sort if it's requested, otherwise use envers default (i.e. AuditOrder isn't required)
         if (!parameters.sort) {
@@ -67,13 +67,14 @@ class PropertyNameAuditOrder {
         String revisionProperty = getRevisionProperty(propertyName)
         if (revisionProperty != null) {
             return AuditEntity.revisionProperty(revisionProperty)
-        } else if (propertyName == 'revisionNumber') {
-            return AuditEntity.revisionNumber()
-        } else if (propertyName == 'revisionType') {
-            return AuditEntity.revisionType()
-        } else {
-            return AuditEntity.property(propertyName)
         }
+        if (propertyName == 'revisionNumber') {
+            return AuditEntity.revisionNumber()
+        }
+        if (propertyName == 'revisionType') {
+            return AuditEntity.revisionType()
+        }
+        return AuditEntity.property(propertyName)
     }
 
     //if the propertyname starts with revisionProperty. then it's a revision property
