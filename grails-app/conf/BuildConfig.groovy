@@ -14,41 +14,32 @@
  * limitations under the License.
  */
 
-grails.project.class.dir = "target/classes"
-grails.project.test.class.dir = "target/test-classes"
-grails.project.test.reports.dir = "target/test-reports"
+grails.project.work.dir = 'target'
+grails.project.source.level = 1.6
 
-//grails.project.war.file = "target/${appName}-${appVersion}.war"
 grails.project.dependency.resolution = {
-    // inherit Grails' default dependencies
-    inherits("global") {
-        // uncomment to disable ehcache
-        // excludes 'ehcache'
-    }
 
-    log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
+	inherits 'global'
+	log 'warn'
 
-    repositories {
-      grailsPlugins()
-      grailsHome()
-      grailsCentral()
+	repositories {
+		grailsCentral()
+		mavenLocal()
+		mavenCentral()
+	}
 
-      mavenLocal()
-      mavenCentral()
-    }
+	dependencies {
+		compile ('org.hibernate:hibernate-envers:3.6.10.Final') {
+			// Grails already includes all of the necessary dependencies
+			transitive = false
+		}
+	}
 
-    dependencies {
-        compile ('org.hibernate:hibernate-envers:3.6.10.Final') {
-            // Grails already includes all of the necessary dependencies
-            transitive = false
-        }
-    }
+	plugins {
+		build(":release:2.1.0", ":rest-client-builder:1.0.2") {
+			export = false
+		}
 
-    plugins {
-        build(":tomcat:$grailsVersion", ":release:2.0.3", ":rest-client-builder:1.0.2") {
-            export = false
-        }
-
-        compile(":hibernate:$grailsVersion")
-    }
+		compile(":hibernate:$grailsVersion")
+	}
 }
