@@ -14,43 +14,17 @@
  * limitations under the License.
  */
 
-// configuration for plugin testing - will not be included in the plugin zip
- 
 log4j = {
-    // Example of changing the log pattern for the default console
-    // appender:
-    //
-    //appenders {
-    //    console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n')
-    //}
+    info  'org.codehaus.groovy.grails',
+          'org.springframework',
+          'net.sf.ehcache.hibernate'
 
-    info  'org.codehaus.groovy.grails.web.servlet',  //  controllers
-           'org.codehaus.groovy.grails.web.pages', //  GSP
-           'org.codehaus.groovy.grails.web.sitemesh', //  layouts
-           'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
-           'org.codehaus.groovy.grails.web.mapping', // URL mapping
-           'org.codehaus.groovy.grails.commons', // core / classloading
-           'org.codehaus.groovy.grails.plugins', // plugins
-           'org.codehaus.groovy.grails.orm.hibernate', // hibernate integration
-           'org.springframework',
-           'net.sf.ehcache.hibernate'
-
-    info   'org.mortbay.log'
-
-    debug 'net.lucasward.grails.plugin',
-          'org.hibernate'
-
-    debug 'net.lucasward'
-    debug 'grails.app'
-    debug 'org.grails'
+    debug 'net.lucasward',
+          'org.hibernate',
+          'grails.app',
+          'org.grails'
 
     root {
         debug 'stdout'
     }
-
-//    appenders {
-//        console name: 'stdout', layout: pattern(conversionPattern: '%d [%t] %-5p %c  %x - %m%n')
-//    }
 }
-grails.views.default.codec="none" // none, html, base64
-grails.views.gsp.encoding="UTF-8"

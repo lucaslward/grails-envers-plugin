@@ -14,26 +14,20 @@
  * limitations under the License.
  */
 
+import net.lucasward.grails.plugin.AuditEventListenerForDefaultDatasource
 import net.lucasward.grails.plugin.EnversPluginSupport
 import net.lucasward.grails.plugin.RevisionsOfEntityQueryMethod
+
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.codehaus.groovy.grails.commons.GrailsDomainClass
 import org.codehaus.groovy.grails.orm.hibernate.HibernateEventListeners
 import org.hibernate.SessionFactory
-import net.lucasward.grails.plugin.AuditEventListenerForDefaultDatasource
 
 class EnversGrailsPlugin {
-    // the plugin version
     def version = "0.4.3"
-
-    // the version or versions of Grails the plugin is designed for
     def grailsVersion = "2.1.0 > *"
-
-    // the other plugins this plugin depends on
-    def observe = ['hibernate']
     def loadAfter = ['hibernate']
 
-    // resources that are excluded from plugin packaging
     def pluginExcludes = [
             "grails-app/views/error.gsp",
             "grails-app/domain/**",
@@ -46,16 +40,16 @@ class EnversGrailsPlugin {
             "web-app/**"
     ]
 
-    def author = "Lucas Ward, Jay Hogan"
+    def author = "Lucas Ward"
     def authorEmail = ""
     def title = "Grails Envers Plugin"
     def description = 'Plugin to integrate grails with Hibernate Envers'
-
-    // URL to the plugin's documentation
     def documentation = "http://grails.org/plugin/envers"
 
-    def doWithWebDescriptor = { xml ->
-    }
+	 def license = "APACHE"
+	 def developers = [[name: 'Jay Hogan', email: '']] // TODO
+//	 def issueManagement = [ system: "JIRA", url: "http://jira.grails.org/browse/GPMYPLUGIN" ]
+	 def scm = [url: 'https://github.com/frozenspider/grails-envers-plugin']
 
     def doWithSpring = {
         auditEventListenerForDefaultDatasource(AuditEventListenerForDefaultDatasource)
@@ -79,7 +73,7 @@ class EnversGrailsPlugin {
         }
     }
 
-    private def registerDomainMethods(GrailsApplication application, SessionFactory sessionFactory) {
+    private void registerDomainMethods(GrailsApplication application, SessionFactory sessionFactory) {
         application.domainClasses.each { GrailsDomainClass gc ->
             def getAllRevisions = new RevisionsOfEntityQueryMethod(sessionFactory, gc.clazz)
             if (EnversPluginSupport.isAudited(gc)) {
@@ -97,14 +91,5 @@ class EnversGrailsPlugin {
                 EnversPluginSupport.generateAuditReaderMethods(gc, sessionFactory)
             }
         }
-    }
-
-    def doWithApplicationContext = { applicationContext ->
-    }
-
-    def onChange = { event ->
-    }
-
-    def onConfigChange = { event ->
     }
 }

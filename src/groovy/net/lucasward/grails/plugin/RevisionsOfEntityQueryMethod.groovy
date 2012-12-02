@@ -18,6 +18,7 @@ package net.lucasward.grails.plugin
 
 import net.lucasward.grails.plugin.criteria.DoNothingCriteria
 import net.lucasward.grails.plugin.criteria.EnversCriteria
+
 import org.hibernate.SessionFactory
 import org.hibernate.envers.AuditReaderFactory
 import org.hibernate.envers.query.AuditQuery
@@ -43,7 +44,7 @@ class RevisionsOfEntityQueryMethod {
         this(sessionFactory, clazz, new DoNothingCriteria())
     }
 
-    public query(String propertyName, argument, Map parameters) {
+    def query(String propertyName, argument, Map parameters) {
         def auditQueryCreator = AuditReaderFactory.get(sessionFactory.currentSession).createQuery()
         AuditQuery query = auditQueryCreator.forRevisionsOfEntity(clazz, false, true)
         criteria.addCriteria(query, clazz, propertyName, argument)
