@@ -24,8 +24,8 @@ import org.codehaus.groovy.grails.orm.hibernate.HibernateEventListeners
 import org.hibernate.SessionFactory
 
 class EnversGrailsPlugin {
-    def version = "0.4.3"
-    def grailsVersion = "2.1.0 > *"
+    def version = "0.4.4"
+    def grailsVersion = "2.1.1 > *"
     def loadAfter = ['hibernate']
 
     def pluginExcludes = [
@@ -47,7 +47,13 @@ class EnversGrailsPlugin {
     def documentation = "http://grails.org/plugin/envers"
 
 	 def license = "APACHE"
-	 def developers = [[name: 'Jay Hogan', email: '']] // TODO
+	 def developers = [
+         [name: 'Jay Hogan', email: ''],
+         [name: 'Damir Murat', email: ''],
+         [name: 'Matija Folnovic', email: ''],
+         [name: 'Alex Abdugafarov', email: 'fswork90@gmail.com'],
+         [name: 'Burt Beckwith', email: 'burt@burtbeckwith.com']
+     ] // TODO
 //	 def issueManagement = [ system: "JIRA", url: "http://jira.grails.org/browse/GPMYPLUGIN" ]
 	 def scm = [url: 'https://github.com/frozenspider/grails-envers-plugin']
 

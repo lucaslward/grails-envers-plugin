@@ -17,4 +17,11 @@
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.eclipse.wst.common.project.facet.core.nature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>.link_to_grails_plugins</name>
+			<type>2</type>
+			<location>E:/_My/git/grails-envers-plugin/target/plugins</location>
+		</link>
+	</linkedResources>
 </projectDescription>
