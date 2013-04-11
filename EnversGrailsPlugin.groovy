@@ -28,7 +28,7 @@ import net.lucasward.grails.plugin.RevisionsOfEntityQueryMethod
 
 class EnversGrailsPlugin {
     // the plugin version
-    def version = "0.1.6"
+    def version = "1.0.0"
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "1.3.6 > *"
     // the other plugins this plugin depends on
@@ -66,10 +66,12 @@ class EnversGrailsPlugin {
     def title = "Grails Envers Plugin"
     def description = '''\\
 Plugin to integrate grails with Hibernate Envers
+
+Proper documentation will be coming. Until then, this plugin describes usage: http://www.lucasward.net/2011/04/grails-envers-plugin.html
 '''
 
     // URL to the plugin's documentation
-    def documentation = "http://grails.org/plugin/envers"
+    def documentation = "http://www.lucasward.net/2011/04/grails-envers-plugin.html"
 
     def doWithWebDescriptor = { xml ->
         // TODO Implement additions to web.xml (optional), this event occurs before 

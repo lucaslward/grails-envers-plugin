@@ -40,13 +40,10 @@ environments {
     }
     test {
         dataSource {
-            driverClassName = "com.mysql.jdbc.Driver"
             dbCreate = "create-drop"
             //url = "jdbc:hsqldb:mem:testDb"
-            url = "jdbc:mysql://tpain/envers"
+            url = "jdbc:hsqldb:mem:devDB"
             logSql = true
-            username = "envers"
-            password = "password"
         }
     }
     production {

@@ -1,46 +1,32 @@
-<!--
-  ~ Copyright 2011 the original author or authors.
-  ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~ http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
-  -->
-
-<plugin name='envers' version='0.1.6' grailsVersion='1.3.6 &gt; *'>
+<plugin name='envers' version='1.0.0' grailsVersion='1.3.6 &gt; *'>
   <author>Lucas Ward</author>
   <title>Grails Envers Plugin</title>
   <description>\
 Plugin to integrate grails with Hibernate Envers
+
+Proper documentation will be coming. Until then, this plugin describes usage: http://www.lucasward.net/2011/04/grails-envers-plugin.html
 </description>
-  <documentation>http://grails.org/plugin/envers</documentation>
+  <documentation>http://www.lucasward.net/2011/04/grails-envers-plugin.html</documentation>
+  <type>EnversGrailsPlugin</type>
   <resources>
-    <resource>BuildConfig</resource>
-    <resource>Config</resource>
-    <resource>DataSource</resource>
-    <resource>UrlMappings</resource>
     <resource>spring.resources</resource>
-    <resource>net.lucasward.grails.plugin.Address</resource>
-    <resource>net.lucasward.grails.plugin.Customer</resource>
-    <resource>net.lucasward.grails.plugin.OrderEntry</resource>
-    <resource>net.lucasward.grails.plugin.State</resource>
-    <resource>net.lucasward.grails.plugin.User</resource>
-    <resource>net.lucasward.grails.plugin.inheritance.AbstractPlayer</resource>
-    <resource>net.lucasward.grails.plugin.inheritance.AmateurPlayer</resource>
-    <resource>net.lucasward.grails.plugin.inheritance.BaseballPlayer</resource>
-    <resource>net.lucasward.grails.plugin.inheritance.FootballPlayer</resource>
-    <resource>net.lucasward.grails.plugin.inheritance.ProfessionalPlayer</resource>
-    <resource>net.lucasward.grails.plugin.inheritance.entry.AbstractPerformanceYear</resource>
-    <resource>net.lucasward.grails.plugin.inheritance.entry.AmateurPerformanceYear</resource>
-    <resource>net.lucasward.grails.plugin.inheritance.entry.ProfessionalPerformanceYear</resource>
   </resources>
-  <dependencies />
+  <repositories>
+    <repository name='grailsCentral' url='http://grails.org/plugins' />
+    <repository name='https://repository.jboss.org/nexus/content/groups/public-jboss/' url='https://repository.jboss.org/nexus/content/groups/public-jboss/' />
+    <repository name='mavenCentral' url='http://repo1.maven.org/maven2/' />
+  </repositories>
+  <dependencies>
+    <test>
+      <dependency group='org.gmock' name='gmock' version='0.8.1' />
+      <dependency group='joda-time' name='joda-time' version='1.6.2' />
+    </test>
+    <compile>
+      <dependency group='mysql' name='mysql-connector-java' version='5.1.14' />
+      <dependency group='org.jboss.envers' name='jboss-envers' version='1.2.3-hibernate-3.3' />
+    </compile>
+  </dependencies>
+  <plugins />
+  <runtimePluginRequirements />
   <behavior />
 </plugin>
