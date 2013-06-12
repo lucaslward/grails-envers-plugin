@@ -18,11 +18,11 @@ package net.lucasward.grails.plugin
 
 import org.hibernate.envers.RevisionListener
 
-public class SpringSecurityRevisionListener implements RevisionListener {
+class SpringSecurityRevisionListener implements RevisionListener {
 
-    public void newRevision(Object entity) {
+    void newRevision(entity) {
         def springSecurityService = SpringSecurityServiceHolder.springSecurityService
-        UserRevisionEntity revisionEntity = (UserRevisionEntity) entity
+        UserRevisionEntity revisionEntity = entity
         def user = springSecurityService.getCurrentUser()
         revisionEntity.setUserId(user.getId())
     }

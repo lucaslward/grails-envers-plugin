@@ -22,7 +22,7 @@ class TestData {
 
     //delete all the data from these tables in between tests.  Because Envers only writes out on transaction
     //commit, we can't test it without committing the transaction, so we have to clean up afterwards
-    def static deleteAuditTables = { Session session ->
+    static deleteAuditTables = { Session session ->
         session.createSQLQuery("delete from order_entry").executeUpdate()
         session.createSQLQuery("delete from order_entry_aud").executeUpdate()
         session.createSQLQuery("delete from customer").executeUpdate()
@@ -34,7 +34,7 @@ class TestData {
         session.createSQLQuery("delete from revinfo").executeUpdate()
     }
 
-    def static create2CustomersInOneTransaction = {
+    static create2CustomersInOneTransaction = {
 
         def customers = []
         Customer.withTransaction {
@@ -62,7 +62,7 @@ class TestData {
         return customers
     }
 
-    static def createGormCustomerWith2Modifications = {
+    static createGormCustomerWith2Modifications = {
         Customer customer
         Customer.withTransaction {
             def address = new Address(city: "Chicago", zip: "60640")
@@ -87,7 +87,7 @@ class TestData {
         return customer
     }
 
-    static def createHibernateCustomerWith1Modification = {
+    static createHibernateCustomerWith1Modification = {
         Customer customer
         Customer.withTransaction {
             def address = new Address(city: "Boston", zip: "02109")
@@ -105,7 +105,7 @@ class TestData {
         return customer
     }
 
-    static def create2OrderEntriesWith1Modification = { Customer customer, Date time ->
+    static create2OrderEntriesWith1Modification = { Customer customer, Date time ->
         Customer.withTransaction {
             OrderEntry order = new OrderEntry(
                     date: time - 1,

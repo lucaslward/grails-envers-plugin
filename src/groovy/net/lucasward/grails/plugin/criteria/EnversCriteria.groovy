@@ -26,6 +26,5 @@ import org.hibernate.envers.query.AuditQuery
  * @author Lucas Ward
  */
 interface EnversCriteria {
-
-    public addCriteria(AuditQuery query, Class clazz, String propertyName, argument)
+    void addCriteria(AuditQuery query, Class clazz, String propertyName, argument)
 }

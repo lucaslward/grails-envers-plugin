@@ -9,20 +9,20 @@ import org.hibernate.envers.event.AuditEventListener
 /**
  * {@link AuditEventListener}, that only gets initialized when called with GrailsAnnotationConfiguration
  * for default data source.
- *  
+ *
  * @author FS
  */
 class AuditEventListenerForDefaultDatasource extends AuditEventListener {
-	
+
 	private boolean initialized = false
-	
+
 	@Override
-	public synchronized void initialize(Configuration cfg) {
+	synchronized void initialize(Configuration cfg) {
 		if (initialized) return
 		if (!(cfg instanceof GrailsAnnotationConfiguration)) {
 			return
-		} 
-		if (cfg.dataSourceName != GrailsDomainClassProperty.DEFAULT_DATA_SOURCE){
+		}
+		if (cfg.dataSourceName != GrailsDomainClassProperty.DEFAULT_DATA_SOURCE) {
 			return
 		}
 		initialized = true

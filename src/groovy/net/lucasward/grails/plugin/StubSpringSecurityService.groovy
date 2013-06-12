@@ -30,5 +30,4 @@ class StubSpringSecurityService {
     String encodePassword(String password, salt = null) {
         return password
     }
-
 }
