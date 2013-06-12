@@ -23,18 +23,18 @@ import org.hibernate.envers.query.AuditQuery
  */
 class PaginationHandler {
 
-    def addPagination(AuditQuery query, Map parameters) {
+    void addPagination(AuditQuery query, Map parameters) {
         handleMaxResults(query, parameters.max)
         handleOffset(query, parameters.offset)
     }
 
-    def handleMaxResults(AuditQuery query, maxResults) {
+    void handleMaxResults(AuditQuery query, maxResults) {
         if (maxResults) {
             query.setMaxResults(maxResults as int)
         }
     }
 
-    def handleOffset(AuditQuery query, offset) {
+    void handleOffset(AuditQuery query, offset) {
         if (offset) {
             query.setFirstResult(offset as int)
         }

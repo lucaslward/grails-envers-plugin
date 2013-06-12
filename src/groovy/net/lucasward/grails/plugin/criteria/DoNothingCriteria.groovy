@@ -21,10 +21,9 @@ import org.hibernate.envers.query.AuditQuery
 /**
  * @author Lucas Ward
  */
-class DoNothingCriteria implements EnversCriteria{
+class DoNothingCriteria implements EnversCriteria {
 
-    def addCriteria(AuditQuery query, Class clazz, String propertyName, Object argument) {
+    void addCriteria(AuditQuery query, Class clazz, String propertyName, argument) {
         //no - op
     }
-
 }

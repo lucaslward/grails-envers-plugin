@@ -26,8 +26,7 @@ import org.hibernate.envers.query.AuditQuery
  */
 class IdentityCriteria implements EnversCriteria {
 
-    @Override def addCriteria(AuditQuery query, Class clazz, String propertyName, Object argument) {
+    @Override void addCriteria(AuditQuery query, Class clazz, String propertyName, argument) {
         query.add(AuditEntity.id().eq(argument))
     }
-
 }
