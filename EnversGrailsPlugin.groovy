@@ -18,16 +18,14 @@ import net.lucasward.grails.plugin.EnversPluginSupport
 import net.lucasward.grails.plugin.RevisionsOfEntityQueryMethod
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.codehaus.groovy.grails.commons.GrailsDomainClass
-import org.codehaus.groovy.grails.orm.hibernate.HibernateEventListeners
 import org.hibernate.SessionFactory
-import net.lucasward.grails.plugin.AuditEventListenerForDefaultDatasource
 
 class EnversGrailsPlugin {
     // the plugin version
-    def version = "2.1.0"
+    def version = "2.4.0"
 
     // the version or versions of Grails the plugin is designed for
-    def grailsVersion = "2.1.0 > *"
+    def grailsVersion = "2.4.0 > *"
 
     // the other plugins this plugin depends on
     def observe = ['hibernate']
@@ -58,18 +56,7 @@ class EnversGrailsPlugin {
     }
 
     def doWithSpring = {
-        auditEventListenerForDefaultDatasource(AuditEventListenerForDefaultDatasource)
-
-        hibernateEventListeners(HibernateEventListeners) {
-            listenerMap = [
-                'post-insert': auditEventListenerForDefaultDatasource,
-                'post-update': auditEventListenerForDefaultDatasource,
-                'post-delete': auditEventListenerForDefaultDatasource,
-                'pre-collection-update': auditEventListenerForDefaultDatasource,
-                'pre-collection-remove': auditEventListenerForDefaultDatasource,
-                'post-collection-recreate': auditEventListenerForDefaultDatasource
-            ]
-        }
+        
     }
 
     def doWithDynamicMethods = { ctx ->
