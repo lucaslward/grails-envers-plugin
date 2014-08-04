@@ -38,17 +38,12 @@ grails.project.dependency.resolution = {
     }
 
     dependencies {
-        compile ('org.hibernate:hibernate-envers:3.6.10.Final') {
-            // Grails already includes all of the necessary dependencies
-            transitive = false
-        }
+        compile ('org.hibernate:hibernate-envers:4.3.5.Final')
     }
 
     plugins {
-        build(":tomcat:$grailsVersion", ":release:2.0.3", ":rest-client-builder:1.0.2") {
+        build(':release:3.0.1', ':rest-client-builder:1.0.3') {
             export = false
         }
-
-        compile(":hibernate:$grailsVersion")
     }
 }
