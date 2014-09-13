@@ -21,14 +21,12 @@ import net.lucasward.grails.plugin.inheritance.entry.ProfessionalPerformanceYear
 import org.hibernate.Session
 import org.hibernate.SessionFactory
 import org.hibernate.envers.AuditReader
-import org.hibernate.envers.AuditReaderFactory
 
 /**
  * These tests are specifically designed to test how well envers as configured in this plugin can handle
  * complex inheritance and collections configurations using gorm
  */
 class InheritanceIntegrationTests extends GroovyTestCase {
-
     def transactional = false
 
     SessionFactory sessionFactory
@@ -36,12 +34,10 @@ class InheritanceIntegrationTests extends GroovyTestCase {
     AuditReader reader
 
     User currentUser
-    
+
     protected void setUp() {
         super.setUp()
         session = sessionFactory.currentSession
-        reader = AuditReaderFactory.get(sessionFactory.currentSession)
-
         currentUser = new User(userName: 'foo', realName: 'Bar').save(flush: true, failOnError: true)
         assert currentUser.id
         SpringSecurityServiceHolder.springSecurityService.currentUser = currentUser
@@ -65,7 +61,6 @@ class InheritanceIntegrationTests extends GroovyTestCase {
     }
 
     void testStoringEntry() {
-
         Date today = new Date()
 
         BaseballPlayer player
