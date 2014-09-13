@@ -31,6 +31,10 @@ class TestData {
         session.createSQLQuery("delete from address_aud").executeUpdate()
         session.createSQLQuery("delete from user").executeUpdate()
         session.createSQLQuery("delete from user_aud").executeUpdate()
+        session.createSQLQuery("delete from user_inclusive_partially_audited").executeUpdate()
+        session.createSQLQuery("delete from user_inclusive_partially_audited_aud").executeUpdate()
+        session.createSQLQuery("delete from user_exclusive_partially_audited").executeUpdate()
+        session.createSQLQuery("delete from user_exclusive_partially_audited_aud").executeUpdate()
         session.createSQLQuery("delete from revinfo").executeUpdate()
     }
 

@@ -17,10 +17,20 @@
 package net.lucasward.grails.plugin
 
 import org.hibernate.envers.Audited
+import org.hibernate.envers.NotAudited
 
 @Audited
-class User {
+class UserExclusivePartiallyAudited {
     Long id
     String userName
     String realName
+
+    @NotAudited
+    public String getRealName() {
+        return realName
+    }
+
+    public void setRealName(String realName) {
+        this.realName = realName
+    }
 }

@@ -53,7 +53,7 @@ class EnversPluginSupport {
     }
 
     static def isAudited = { GrailsDomainClass gc ->
-        return AnnotationUtils.findAnnotation(gc.clazz, Audited) != null
+        return (AnnotationUtils.findAnnotation(gc.clazz, Audited) != null) || (gc.clazz.getMethods().find{AnnotationUtils.findAnnotation(it, Audited)} != null)
     }
 
     /**

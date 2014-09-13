@@ -165,29 +165,78 @@ class RevisionsOfEntityIntegrationTests extends GroovyTestCase {
         assert revisions.size() == 3
     }
 
-    //test to see if Envers will work with a field level annotated domain class
-    void testFieldLevelAudit() {
-        def id
-        User.withTransaction() {
-            User user = new User(userName: "field", realName: "Annotated")
+    void testFieldLevelInclusiveAudit() {
+        Long id = null
+        UserInclusivePartiallyAudited.withTransaction() {
+            UserInclusivePartiallyAudited user = new UserInclusivePartiallyAudited(userName: "field", realName: "Annotated")
             user.save(flush: true)
             id = user.id
         }
 
-        User.withTransaction() {
-            User user = User.get(id)
+        UserInclusivePartiallyAudited.withTransaction() {
+            UserInclusivePartiallyAudited user = UserInclusivePartiallyAudited.get(id)
             user.userName = "newField"
             user.save(flush: true)
         }
 
-        User.withTransaction() {
-            User user = User.get(id)
+        UserInclusivePartiallyAudited.withTransaction() {
+            UserInclusivePartiallyAudited user = UserInclusivePartiallyAudited.get(id)
             user.realName = "Field Annotated"
             user.save(flush: true)
         }
 
-        def results = reader.createQuery().forRevisionsOfEntity(User.class, false, true).resultList
-//        assert results.size() == 2
+        def results = reader.createQuery().forRevisionsOfEntity(UserInclusivePartiallyAudited.class, false, true).resultList
+        assert results.size() == 2
+
+        UserInclusivePartiallyAudited user = UserInclusivePartiallyAudited.get(id)
+        def revisions = user.retrieveRevisions()
+
+        def userRevision = user.findAtRevision(revisions[0])
+        assert userRevision.realName == "Annotated"
+        assert userRevision.userName == null
+
+        userRevision = user.findAtRevision(revisions[1])
+        assert userRevision.realName == "Field Annotated"
+        assert userRevision.userName == null
+    }
+
+    void testFieldLevelExclusiveAudit() {
+        Long id = null
+        UserExclusivePartiallyAudited.withTransaction() {
+            UserExclusivePartiallyAudited user = new UserExclusivePartiallyAudited(userName: "field", realName: "Annotated")
+            user.save(flush: true)
+            id = user.id
+        }
+
+        UserExclusivePartiallyAudited.withTransaction() {
+            UserExclusivePartiallyAudited user = UserExclusivePartiallyAudited.get(id)
+            user.userName = "newField"
+            user.save(flush: true)
+        }
+
+        UserExclusivePartiallyAudited.withTransaction() {
+            UserExclusivePartiallyAudited user = UserExclusivePartiallyAudited.get(id)
+            user.realName = "Field Annotated"
+            user.save(flush: true)
+        }
+
+        def results = reader.createQuery().forRevisionsOfEntity(UserExclusivePartiallyAudited.class, false, true).resultList
+        assert results.size() == 3
+
+        UserExclusivePartiallyAudited user = UserExclusivePartiallyAudited.get(id)
+        def revisions = user.retrieveRevisions()
+
+        def userRevision = user.findAtRevision(revisions[0])
+        assert userRevision.realName == null
+        assert userRevision.userName == "field"
+
+        userRevision = user.findAtRevision(revisions[1])
+        assert userRevision.realName == null
+        assert userRevision.userName == "newField"
+
+        userRevision = user.findAtRevision(revisions[2])
+        assert userRevision.realName == null
+        assert userRevision.userName == "newField"
     }
 
     void testSaveCustomerWithoutAddress() {
