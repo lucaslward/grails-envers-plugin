@@ -16,10 +16,10 @@
 
 package net.lucasward.grails.plugin
 
+import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
 import org.hibernate.Session
 import org.hibernate.SessionFactory
 import org.hibernate.envers.AuditReader
-import org.hibernate.envers.AuditReaderFactory
 import org.hibernate.envers.RevisionType
 import org.hibernate.envers.query.AuditEntity
 import static net.lucasward.grails.plugin.TestData.getCreate2OrderEntriesWith1Modification
@@ -28,29 +28,25 @@ import static net.lucasward.grails.plugin.TestData.getCreateHibernateCustomerWit
 import static net.lucasward.grails.plugin.TestData.getDeleteAuditTables
 
 class RevisionsOfEntityIntegrationTests extends GroovyTestCase {
-
     def transactional = false
-
-    def springSecurityService
 
     SessionFactory sessionFactory
     Session session
     AuditReader reader
+    DatasourceAwareAuditEventListener datasourceAwareAuditEventListener
 
     User currentUser
 
     protected void setUp() {
         super.setUp()
         session = sessionFactory.currentSession
-        reader = AuditReaderFactory.get(sessionFactory.currentSession)
-
+        reader = datasourceAwareAuditEventListener.createAuditReader(sessionFactory.currentSession, GrailsDomainClassProperty.DEFAULT_DATA_SOURCE)
         currentUser = new User(userName: 'foo', realName: 'Bar').save(flush:  true, failOnError: true)
         SpringSecurityServiceHolder.springSecurityService.currentUser = currentUser
     }
 
     protected void tearDown() {
         super.tearDown()
-
         deleteAuditTables(session)
     }
 
@@ -107,8 +103,8 @@ class RevisionsOfEntityIntegrationTests extends GroovyTestCase {
         createHibernateCustomerWith1Modification()
 
         Customer gormUser = Customer.findByName("PureGorm")
-        def revisions = reader.createQuery().forRevisionsOfEntity(Customer.class, false, true).add(AuditEntity.id().eq(gormUser.id)).resultList
-        //assertGormCustomerRevisions(revisions)
+        def revisions = reader.createQuery().forRevisionsOfEntity(Customer.class, false, true).add(AuditEntity.id().eq(gormUser.id)).resultList.collect { EnversPluginSupport.collapseRevision(it) }
+        assertGormCustomerRevisions(revisions)
     }
 
     //Id has to be handled differently, so we should test it separately
@@ -118,7 +114,7 @@ class RevisionsOfEntityIntegrationTests extends GroovyTestCase {
         assertGormCustomerRevisions(revisions)
     }
 
-    //if I search by a clas, such as address, does it work?
+    //if I search by a class, such as address, does it work?
     void testFindByAssociatedDomainClass() {
         Customer customer = createGormCustomerWith2Modifications()
         def revisions = Customer.findAllRevisionsByAddress(customer.address)
@@ -152,7 +148,7 @@ class RevisionsOfEntityIntegrationTests extends GroovyTestCase {
 
 
     void testRetrieveCustomersCreatedInTheSameTransaction() {
-        def customers = TestData.create2CustomersInOneTransaction()
+        TestData.create2CustomersInOneTransaction()
         def results = Customer.findAllRevisionsByEmail("tester@envers.org")
         assert results.size() == 3
         assert results[0].revisionEntity == results[1].revisionEntity
@@ -225,7 +221,7 @@ class RevisionsOfEntityIntegrationTests extends GroovyTestCase {
     //        assertGormCustomerRevisions(revisions)
     //    }
 
-    private def assertGormCustomerRevisions(List results) {
+    private static def assertGormCustomerRevisions(List results) {
         assert results.size() == 3
         def r = results[0]
         assert r.name == "PureGorm"

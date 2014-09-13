@@ -20,6 +20,7 @@ import org.hibernate.envers.query.AuditEntity
 import org.hibernate.envers.query.AuditQuery
 import org.hibernate.envers.query.criteria.AuditProperty
 import org.hibernate.envers.query.order.AuditOrder
+import org.hibernate.envers.query.property.OriginalIdPropertyName
 
 /**
  * Because envers can only be queried with a criteria like interface, if a user wants to do something like
@@ -41,7 +42,7 @@ import org.hibernate.envers.query.order.AuditOrder
  */
 class PropertyNameAuditOrder {
 
-    public void addOrder(AuditQuery query, Map parameters) {
+    void addOrder(AuditQuery query, Map parameters) {
 
         //we'll only add sort if it's requested, otherwise use envers default (i.e. AuditOrder isn't required)
         if (!parameters.sort) {
@@ -67,16 +68,24 @@ class PropertyNameAuditOrder {
         String revisionProperty = getRevisionProperty(propertyName)
         if (revisionProperty != null) {
             return AuditEntity.revisionProperty(revisionProperty)
-        } else if (propertyName == 'revisionNumber') {
-            return AuditEntity.revisionNumber()
-        } else if (propertyName == 'revisionType') {
-            return AuditEntity.revisionType()
-        } else {
-            return AuditEntity.property(propertyName)
         }
+
+        if (propertyName == 'revisionNumber') {
+            return AuditEntity.revisionNumber()
+        }
+
+        if (propertyName == 'revisionType') {
+            return AuditEntity.revisionType()
+        }
+
+        if (propertyName == 'id') {
+            return new AuditProperty(new OriginalIdPropertyName(propertyName));
+        }
+
+        return AuditEntity.property(propertyName)
     }
 
-    //if the propertyname starts with revisionProperty. then it's a revision property
+    //if the propertyName starts with revisionProperty. then it's a revision property
     private String getRevisionProperty(String propertyName) {
         if (propertyName.startsWith('revisionProperty.')) {
             return propertyName.split('revisionProperty.')[1]

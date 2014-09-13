@@ -18,8 +18,10 @@ package net.lucasward.grails.plugin
 
 import net.lucasward.grails.plugin.criteria.DoNothingCriteria
 import net.lucasward.grails.plugin.criteria.EnversCriteria
+
 import org.hibernate.SessionFactory
-import org.hibernate.envers.AuditReaderFactory
+import org.hibernate.envers.AuditReader
+import org.hibernate.envers.query.AuditEntity
 import org.hibernate.envers.query.AuditQuery
 
 /**
@@ -33,23 +35,48 @@ class RevisionsOfEntityQueryMethod {
     PropertyNameAuditOrder auditOrder = new PropertyNameAuditOrder()
     PaginationHandler paginationHandler = new PaginationHandler()
 
-    RevisionsOfEntityQueryMethod(SessionFactory sessionFactory, Class clazz, EnversCriteria criteria) {
+    RevisionsOfEntityQueryMethod(
+        SessionFactory sessionFactory, Class clazz, EnversCriteria criteria)
+    {
         this.sessionFactory = sessionFactory
         this.clazz = clazz
         this.criteria = criteria
     }
 
-    RevisionsOfEntityQueryMethod(SessionFactory sessionFactory, Class clazz) {
-        this(sessionFactory, clazz, new DoNothingCriteria())
+    RevisionsOfEntityQueryMethod(
+        SessionFactory sessionFactory, Class clazz)
+    {
+        this(
+            sessionFactory, clazz, new DoNothingCriteria())
     }
 
-    public query(String propertyName, argument, Map parameters) {
-        def auditQueryCreator = AuditReaderFactory.get(sessionFactory.currentSession).createQuery()
-        AuditQuery query = auditQueryCreator.forRevisionsOfEntity(clazz, false, true)
-        criteria.addCriteria(query, clazz, propertyName, argument)
-        auditOrder.addOrder(query, parameters)
-        paginationHandler.addPagination(query, parameters)
+    def query(
+        String dataSourceName, DatasourceAwareAuditEventListener datasourceAwareAuditEventListener, String propertyName, argument, Map parameters)
+    {
+      AuditReader auditReader = datasourceAwareAuditEventListener.createAuditReader(sessionFactory.currentSession, dataSourceName)
 
-        return query.resultList.collect { EnversPluginSupport.collapseRevision(it) }
+      def auditQueryCreator = auditReader.createQuery()
+      AuditQuery query = auditQueryCreator.forRevisionsOfEntity(clazz, false, true)
+      criteria.addCriteria(query, clazz, propertyName, argument)
+      auditOrder.addOrder(query, parameters)
+      paginationHandler.addPagination(query, parameters)
+
+      return query.resultList.collect { EnversPluginSupport.collapseRevision(it) }
+    }
+
+    def count(
+        String dataSourceName, DatasourceAwareAuditEventListener datasourceAwareAuditEventListener)
+    {
+      AuditReader auditReader = datasourceAwareAuditEventListener.createAuditReader(sessionFactory.currentSession, dataSourceName)
+
+      def auditQueryCreator = auditReader.createQuery()
+      AuditQuery query = auditQueryCreator.forRevisionsOfEntity(clazz, false, true)
+      query.addProjection(AuditEntity.revisionNumber().count())
+
+      return query.singleResult
+    }
+
+    AuditReader getAuditReader(String dataSourceName, DatasourceAwareAuditEventListener datasourceAwareAuditEventListener) {
+      return datasourceAwareAuditEventListener.createAuditReader(sessionFactory.currentSession, dataSourceName)
     }
 }

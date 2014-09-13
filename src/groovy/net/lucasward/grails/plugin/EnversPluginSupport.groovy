@@ -16,18 +16,19 @@
 
 package net.lucasward.grails.plugin
 
-import org.hibernate.SessionFactory
-
-import org.codehaus.groovy.grails.commons.GrailsDomainClass
 import java.util.concurrent.ConcurrentHashMap
-import org.hibernate.Session
-import org.hibernate.envers.AuditReaderFactory
-import org.hibernate.envers.Audited
 
-import org.springframework.core.annotation.AnnotationUtils
-import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
 import net.lucasward.grails.plugin.criteria.IdentityCriteria
 import net.lucasward.grails.plugin.criteria.PropertyNameCriteria
+
+import org.codehaus.groovy.grails.commons.GrailsDomainClass
+import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
+import org.hibernate.Session
+import org.hibernate.SessionFactory
+import org.hibernate.envers.AuditReaderFactory
+import org.hibernate.envers.Audited
+import org.hibernate.envers.exception.NotAuditedException
+import org.springframework.core.annotation.AnnotationUtils
 
 /**
  * Support classes for the plugin.  it's easier to test some of these methods separately than if they were in the main plugin file.  Most of the
@@ -37,12 +38,12 @@ import net.lucasward.grails.plugin.criteria.PropertyNameCriteria
  */
 class EnversPluginSupport {
 
+    private static DOMAIN_INITIALIZERS = new ConcurrentHashMap()
+
     static def getAllRevisions(Class clazz, SessionFactory sessionFactory) {
         Session session = sessionFactory.currentSession
         return AuditReaderFactory.get(sessionFactory.currentSession).createQuery().forRevisionsOfEntity(clazz, false, true).resultList
     }
-
-    private static DOMAIN_INITIALIZERS = new ConcurrentHashMap()
 
     static initializeDomain(Class c) {
         synchronized (c) {
@@ -51,9 +52,6 @@ class EnversPluginSupport {
         }
     }
 
-    /**
-     * For right now, only the presence of the @Audited annotation on the class will mean it's annotated
-     */
     static def isAudited = { GrailsDomainClass gc ->
         return AnnotationUtils.findAnnotation(gc.clazz, Audited) != null
     }
@@ -80,47 +78,65 @@ class EnversPluginSupport {
         return entity
     }
 
-    static generateFindAllMethods(GrailsDomainClass gc, SessionFactory sessionFactory) {
+    static void generateFindAllMethods(
+        String dataSourceName, DatasourceAwareAuditEventListener datasourceAwareAuditEventListener, GrailsDomainClass gc,
+        SessionFactory sessionFactory)
+    {
         def findAllRevisionsBy = new RevisionsOfEntityQueryMethod(sessionFactory, gc.clazz, new PropertyNameCriteria())
+
         MetaClass mc = gc.getMetaClass()
-        gc.persistantProperties.each { GrailsDomainClassProperty prop ->
-            generateFindAllMethod(prop, mc, findAllRevisionsBy)
+        gc.persistentProperties.each { GrailsDomainClassProperty prop ->
+            generateFindAllMethod(dataSourceName, datasourceAwareAuditEventListener, prop, mc, findAllRevisionsBy)
         }
-        generateFindAllMethod(gc.identifier, mc, new RevisionsOfEntityQueryMethod(sessionFactory, gc.clazz, new IdentityCriteria()))
+
+        generateFindAllMethod(
+            dataSourceName, datasourceAwareAuditEventListener,
+            gc.identifier, mc, new RevisionsOfEntityQueryMethod(sessionFactory, gc.clazz, new IdentityCriteria()))
     }
 
     //Generate the methods that work on just 'AuditReader', and not and AuditQuery
-    static generateAuditReaderMethods(GrailsDomainClass gc, SessionFactory sessionFactory) {
+    static void generateAuditReaderMethods(
+        String dataSourceName, DatasourceAwareAuditEventListener datasourceAwareAuditEventListener, GrailsDomainClass gc,
+        SessionFactory sessionFactory)
+    {
         def getCurrentRevision = new GetCurrentRevisionQuery(sessionFactory, gc.clazz)
         def getRevisions = new GetRevisionsQuery(sessionFactory, gc.clazz)
         def findAtRevision = new FindAtRevisionQuery(sessionFactory, gc.clazz)
         MetaClass mc = gc.getMetaClass()
+
         mc.static.getCurrentRevision = {
-            getCurrentRevision.query()
+            getCurrentRevision.query(dataSourceName, datasourceAwareAuditEventListener)
         }
+
         mc.retrieveRevisions = {
-			try {
-				return getRevisions.query(delegate.id)
-			} catch (org.hibernate.envers.exception.NotAuditedException ex) {
-				// This indicates call to entity.revisions or entity.getProperties()
-				// In second case, we shouldn't throwing an exception clearly is unexpected behavior
-				return null;
-			}
+            try {
+                return getRevisions.query(dataSourceName, datasourceAwareAuditEventListener, delegate.id)
+            }
+            catch (NotAuditedException ignored) {
+                // This indicates call to entity.revisions or entity.getProperties()
+                // In second case, we shouldn't throwing an exception clearly is unexpected behavior
+                return null
+            }
         }
+
         mc.findAtRevision = { revisionNumber ->
-            findAtRevision.query(delegate.id, revisionNumber)
+            findAtRevision.query(dataSourceName, datasourceAwareAuditEventListener, delegate.id, revisionNumber as Number)
         }
     }
 
-    private static def generateFindAllMethod(GrailsDomainClassProperty prop, MetaClass mc, method) {
+    private static void generateFindAllMethod(
+        String dataSourceName, DatasourceAwareAuditEventListener datasourceAwareAuditEventListener, GrailsDomainClassProperty prop, MetaClass mc,
+        RevisionsOfEntityQueryMethod method)
+    {
         def propertyName = prop.name
         def methodName = "findAllRevisionsBy${propertyName.capitalize()}"
+
         mc.static."$methodName" = { argument ->
-            method.query(propertyName, argument, [:])
+            method.query(dataSourceName, datasourceAwareAuditEventListener, propertyName, argument, [:])
         }
 
         mc.static."$methodName" = { argument, Map parameters ->
-            method.query(propertyName, argument, parameters)
+            method.query(dataSourceName, datasourceAwareAuditEventListener, propertyName, argument, parameters)
         }
     }
 }

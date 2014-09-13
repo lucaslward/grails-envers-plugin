@@ -33,8 +33,8 @@ class GetRevisionsQuery {
         this.clazz = clazz
     }
 
-    def query = { Long id ->
-        AuditReader auditReader = AuditReaderFactory.get(sessionFactory.currentSession)
+    def query(String dataSourceName, DatasourceAwareAuditEventListener datasourceAwareAuditEventListener, Object id) {
+        AuditReader auditReader = datasourceAwareAuditEventListener.createAuditReader(sessionFactory.currentSession, dataSourceName)
         return auditReader.getRevisions(clazz, id)
     }
 }

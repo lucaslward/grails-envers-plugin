@@ -22,7 +22,7 @@ class TestData {
 
     //delete all the data from these tables in between tests.  Because Envers only writes out on transaction
     //commit, we can't test it without committing the transaction, so we have to clean up afterwards
-    def static deleteAuditTables = { Session session ->
+    static deleteAuditTables = { Session session ->
         session.createSQLQuery("delete from order_entry").executeUpdate()
         session.createSQLQuery("delete from order_entry_aud").executeUpdate()
         session.createSQLQuery("delete from customer").executeUpdate()
@@ -34,7 +34,7 @@ class TestData {
         session.createSQLQuery("delete from revinfo").executeUpdate()
     }
 
-    def static create2CustomersInOneTransaction = {
+    static def create2CustomersInOneTransaction = {
 
         def customers = []
         Customer.withTransaction {
@@ -63,7 +63,8 @@ class TestData {
     }
 
     static def createGormCustomerWith2Modifications = {
-        Customer customer
+        Customer customer = null
+
         Customer.withTransaction {
             def address = new Address(city: "Chicago", zip: "60640")
             address.save()
@@ -84,11 +85,13 @@ class TestData {
             customer.address.zip = "10003"
             customer.save(flush: true)
         }
+
         return customer
     }
 
     static def createHibernateCustomerWith1Modification = {
-        Customer customer
+        Customer customer = null
+
         Customer.withTransaction {
             def address = new Address(city: "Boston", zip: "02109")
             address.save()
@@ -102,27 +105,20 @@ class TestData {
             customer.address.zip = "02108"
             customer.save(flush: true)
         }
+
         return customer
     }
 
     static def create2OrderEntriesWith1Modification = { Customer customer, Date time ->
         Customer.withTransaction {
-            OrderEntry order = new OrderEntry(
-                    date: time - 1,
-                    amount: 5.3,
-                    numberOfItems: 2,
-                    customer: customer)
+            OrderEntry order = new OrderEntry(date: time - 1, amount: 5.3, numberOfItems: 2, customer: customer)
             order.save()
             customer.orders << order
             customer.save(flush:true)
         }
 
         Customer.withTransaction {
-            OrderEntry order = new OrderEntry(
-                    date: time,
-                    amount: 5.3,
-                    numberOfItems: 2,
-                    customer: customer)
+            OrderEntry order = new OrderEntry(date: time, amount: 5.3, numberOfItems: 2, customer: customer)
             order.save()
             customer.orders << order
             customer.save(flush:true)
