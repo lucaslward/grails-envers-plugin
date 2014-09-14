@@ -14,13 +14,23 @@
  * limitations under the License.
  */
 
-//
-// This script is executed by Grails during application upgrade ('grails upgrade'
-// command). This script is a Gant script so you can use all special variables
-// provided by Gant (such as 'baseDir' which points on project base dir). You can
-// use 'ant' to access a global instance of AntBuilder
-//
-// For example you can create directory under project tree:
-//
-//    ant.mkdir(dir:"${basedir}/grails-app/jobs")
-//
+package net.lucasward.grails.plugin
+
+import org.hibernate.envers.Audited
+import org.hibernate.envers.NotAudited
+
+@Audited
+class UserExclusivePartiallyAudited {
+    Long id
+    String userName
+    String realName
+
+    @NotAudited
+    public String getRealName() {
+        return realName
+    }
+
+    public void setRealName(String realName) {
+        this.realName = realName
+    }
+}

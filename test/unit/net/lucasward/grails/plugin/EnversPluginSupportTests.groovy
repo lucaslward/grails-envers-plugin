@@ -70,7 +70,7 @@ class EnversPluginSupportTests {
     void testGenerateFindAllMethods() {
         GrailsMock sessionFactory = mockFor(SessionFactory)
         GrailsDomainClass gdc = new DefaultGrailsDomainClass(Customer.class)
-        EnversPluginSupport.generateFindAllMethods(gdc, sessionFactory.createMock())
+        EnversPluginSupport.generateFindAllMethods(null, null, gdc, sessionFactory.createMock() as SessionFactory)
 
         assert Customer.metaClass.getStaticMetaMethod("findAllRevisionsByEmail", ["Email"]) != null
         assert Customer.metaClass.getStaticMetaMethod("findAllRevisionsByName", ["Email"]) != null
@@ -83,7 +83,7 @@ class EnversPluginSupportTests {
     void testGenerateAuditReaderMethods() {
         GrailsMock sessionFactory = mockFor(SessionFactory)
         GrailsDomainClass gdc = new DefaultGrailsDomainClass(Customer.class)
-        EnversPluginSupport.generateAuditReaderMethods(gdc, sessionFactory.createMock())
+        EnversPluginSupport.generateAuditReaderMethods(null, null, gdc, sessionFactory.createMock() as SessionFactory)
 
         assert Customer.metaClass.getStaticMetaMethod("getCurrentRevision", []) != null
         assert Customer.metaClass.getMetaMethod("retrieveRevisions", []) != null

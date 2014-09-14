@@ -9,7 +9,8 @@ out/*
 *.iml
 stacktrace.log
 target-eclipse/
-/classes
-/web-app/WEB-INF/classes
 .DS_Store
 .link_to_grails_plugins
+plugin.xml
+grails-envers*.zip
+grails-envers*.zip.sha1

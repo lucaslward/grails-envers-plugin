@@ -14,27 +14,18 @@
  * limitations under the License.
  */
 
-grails.project.class.dir = "target/classes"
-grails.project.test.class.dir = "target/test-classes"
-grails.project.test.reports.dir = "target/test-reports"
+grails.project.work.dir = 'target'
 
-//grails.project.war.file = "target/${appName}-${appVersion}.war"
+grails.project.target.level = 1.6
+grails.project.source.level = 1.6
+
 grails.project.dependency.resolution = {
-    // inherit Grails' default dependencies
-    inherits("global") {
-        // uncomment to disable ehcache
-        // excludes 'ehcache'
-    }
-
-    log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
+    inherits 'global'
+    log 'warn'
 
     repositories {
-      grailsPlugins()
-      grailsHome()
-      grailsCentral()
-
-      mavenLocal()
-      mavenCentral()
+        grailsCentral()
+        mavenCentral()
     }
 
     dependencies {
@@ -45,10 +36,15 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
-        build(":tomcat:$grailsVersion", ":release:2.0.3", ":rest-client-builder:1.0.2") {
+        build(":tomcat:$grailsVersion", ":release:2.2.0", ":rest-client-builder:1.0.3") {
             export = false
         }
 
-        compile(":hibernate:$grailsVersion")
+        compile(":hibernate:$grailsVersion") {
+            export = false
+        }
     }
 }
+
+// While publishing plugin, do not attempt to commit and tag source changes.
+grails.release.scm.enabled = false

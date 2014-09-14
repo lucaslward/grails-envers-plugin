@@ -35,8 +35,8 @@ class FindAtRevisionQuery {
         this.clazz = clazz
     }
 
-    def query = { id, revisionNumber ->
-        AuditReader auditReader = AuditReaderFactory.get(sessionFactory.currentSession)
+    def query(String dataSourceName, DatasourceAwareAuditEventListener datasourceAwareAuditEventListener, Object id, Number revisionNumber) {
+        AuditReader auditReader = datasourceAwareAuditEventListener.createAuditReader(sessionFactory.currentSession, dataSourceName)
         return auditReader.find(clazz, id, revisionNumber)
     }
 }

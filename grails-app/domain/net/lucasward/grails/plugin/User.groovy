@@ -18,23 +18,9 @@ package net.lucasward.grails.plugin
 
 import org.hibernate.envers.Audited
 
-//I'm only using field level annotations to test them
 @Audited
 class User {
     Long id
     String userName
     String realName
-
-    @Audited(targetAuditMode = org.hibernate.envers.RelationTargetAuditMode.NOT_AUDITED)
-    public String getRealName() {
-        return realName
-    }
-
-    public void setRealName(String realName) {
-        this.realName = realName
-    }
-
-    Long getId() {
-        return id
-    }
 }

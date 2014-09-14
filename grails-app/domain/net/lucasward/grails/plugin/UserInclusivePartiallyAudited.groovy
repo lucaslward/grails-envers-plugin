@@ -14,8 +14,21 @@
  * limitations under the License.
  */
 
-//
-// This script is executed by Grails when the plugin is uninstalled from project.
-// Use this script if you intend to do any additional clean-up on uninstall, but
-// beware of messing up SVN directories!
-//
+package net.lucasward.grails.plugin
+
+import org.hibernate.envers.Audited
+
+class UserInclusivePartiallyAudited {
+    Long id
+    String userName
+    String realName
+
+    @Audited
+    public String getRealName() {
+        return realName
+    }
+
+    public void setRealName(String realName) {
+        this.realName = realName
+    }
+}

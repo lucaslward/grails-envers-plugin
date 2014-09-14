@@ -14,26 +14,23 @@
  * limitations under the License.
  */
 
+import net.lucasward.grails.plugin.DatasourceAwareAuditEventListener
 import net.lucasward.grails.plugin.EnversPluginSupport
 import net.lucasward.grails.plugin.RevisionsOfEntityQueryMethod
+
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.codehaus.groovy.grails.commons.GrailsDomainClass
+import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
 import org.codehaus.groovy.grails.orm.hibernate.HibernateEventListeners
+import org.codehaus.groovy.grails.orm.hibernate.cfg.GrailsHibernateUtil
 import org.hibernate.SessionFactory
-import net.lucasward.grails.plugin.AuditEventListenerForDefaultDatasource
+import org.springframework.context.ApplicationContext
 
 class EnversGrailsPlugin {
-    // the plugin version
-    def version = "2.1.0"
-
-    // the version or versions of Grails the plugin is designed for
+    def version = "2.2.0"
     def grailsVersion = "2.1.0 > *"
-
-    // the other plugins this plugin depends on
-    def observe = ['hibernate']
     def loadAfter = ['hibernate']
 
-    // resources that are excluded from plugin packaging
     def pluginExcludes = [
             "grails-app/views/error.gsp",
             "grails-app/domain/**",
@@ -46,65 +43,94 @@ class EnversGrailsPlugin {
             "web-app/**"
     ]
 
-    def author = "Lucas Ward, Jay Hogan"
-    def authorEmail = ""
+    def author = "Lucas Ward"
+    def authorEmail = "lucaslward@gmail.com"
     def title = "Grails Envers Plugin"
     def description = 'Plugin to integrate grails with Hibernate Envers'
-
-    // URL to the plugin's documentation
     def documentation = "http://grails.org/plugin/envers"
 
-    def doWithWebDescriptor = { xml ->
-    }
+    def license = "APACHE"
+    def developers = [
+         [name: 'Jay Hogan', email: 'jay_hogan@sra.com'],
+         [name: 'Damir Murat', email: 'damir.murat.git@gmail.com'],
+         [name: 'Matija Folnović', email: 'mfolnovic@gmail.com'],
+         [name: 'Alex Abdugafarov', email: 'fswork90@gmail.com'],
+         [name: 'Burt Beckwith', email: 'burt@burtbeckwith.com']
+    ]
+
+    def issueManagement = [ system: "github", url: "https://github.com/lucaslward/grails-envers-plugin/issues" ]
+    def scm = [url: 'https://github.com/lucaslward/grails-envers-plugin']
 
     def doWithSpring = {
-        auditEventListenerForDefaultDatasource(AuditEventListenerForDefaultDatasource)
+        def configuredAuditedDataSourceNames = application.config?.envers?.auditedDataSourceNames
+        datasourceAwareAuditEventListener(DatasourceAwareAuditEventListener) {
+          if (configuredAuditedDataSourceNames) {
+            auditedDataSourceNames = configuredAuditedDataSourceNames
+          }
+        }
 
         hibernateEventListeners(HibernateEventListeners) {
             listenerMap = [
-                'post-insert': auditEventListenerForDefaultDatasource,
-                'post-update': auditEventListenerForDefaultDatasource,
-                'post-delete': auditEventListenerForDefaultDatasource,
-                'pre-collection-update': auditEventListenerForDefaultDatasource,
-                'pre-collection-remove': auditEventListenerForDefaultDatasource,
-                'post-collection-recreate': auditEventListenerForDefaultDatasource
+                'post-insert': datasourceAwareAuditEventListener,
+                'post-update': datasourceAwareAuditEventListener,
+                'post-delete': datasourceAwareAuditEventListener,
+                'pre-collection-update': datasourceAwareAuditEventListener,
+                'pre-collection-remove': datasourceAwareAuditEventListener,
+                'post-collection-recreate': datasourceAwareAuditEventListener
             ]
         }
     }
 
     def doWithDynamicMethods = { ctx ->
-        for (entry in ctx.getBeansOfType(SessionFactory)) {
-            SessionFactory sessionFactory = entry.value
-            registerDomainMethods(application, sessionFactory)
+        def datasourceNames = []
+        if (ctx.containsBean('dataSource')) {
+            datasourceNames << GrailsDomainClassProperty.DEFAULT_DATA_SOURCE
+        }
+
+        for (name in application.config.keySet()) {
+            if (name.startsWith('dataSource_')) {
+                datasourceNames << name - 'dataSource_'
+            }
+        }
+
+        for (String datasourceName in datasourceNames) {
+            boolean isDefault = datasourceName == GrailsDomainClassProperty.DEFAULT_DATA_SOURCE
+            String suffix = isDefault ? '' : '_' + datasourceName
+            SessionFactory dataSourceSessionFactory = ctx.getBean("sessionFactory$suffix") as SessionFactory
+            registerDomainMethods(application, dataSourceSessionFactory, datasourceName, ctx)
         }
     }
 
-    private def registerDomainMethods(GrailsApplication application, SessionFactory sessionFactory) {
+    private static void registerDomainMethods(
+        GrailsApplication application, SessionFactory sessionFactory, String dataSourceName, ApplicationContext applicationContext)
+    {
+        DatasourceAwareAuditEventListener datasourceAwareAuditEventListener =
+          applicationContext.getBean('datasourceAwareAuditEventListener') as DatasourceAwareAuditEventListener
+
         application.domainClasses.each { GrailsDomainClass gc ->
-            def getAllRevisions = new RevisionsOfEntityQueryMethod(sessionFactory, gc.clazz)
-            if (EnversPluginSupport.isAudited(gc)) {
+            if (EnversPluginSupport.isAudited(gc) && GrailsHibernateUtil.usesDatasource(gc, dataSourceName)) {
+                def getAllRevisions = new RevisionsOfEntityQueryMethod(sessionFactory, gc.clazz)
                 MetaClass mc = gc.getMetaClass()
 
                 mc.static.findAllRevisions = {
-                    getAllRevisions.query(null, null, [:])
+                    getAllRevisions.query(dataSourceName, datasourceAwareAuditEventListener, null, null, [:])
                 }
 
                 mc.static.findAllRevisions = { Map parameters ->
-                    getAllRevisions.query(null, null, parameters)
+                    getAllRevisions.query(dataSourceName, datasourceAwareAuditEventListener, null, null, parameters)
                 }
 
-                EnversPluginSupport.generateFindAllMethods(gc, sessionFactory)
-                EnversPluginSupport.generateAuditReaderMethods(gc, sessionFactory)
+                mc.static.countAllRevisions = {
+                    getAllRevisions.count(dataSourceName, datasourceAwareAuditEventListener)
+                }
+
+                mc.static.getAuditReader = {
+                    getAllRevisions.getAuditReader(dataSourceName, datasourceAwareAuditEventListener)
+                }
+
+                EnversPluginSupport.generateFindAllMethods(dataSourceName, datasourceAwareAuditEventListener, gc, sessionFactory)
+                EnversPluginSupport.generateAuditReaderMethods(dataSourceName, datasourceAwareAuditEventListener, gc, sessionFactory)
             }
         }
-    }
-
-    def doWithApplicationContext = { applicationContext ->
-    }
-
-    def onChange = { event ->
-    }
-
-    def onConfigChange = { event ->
     }
 }

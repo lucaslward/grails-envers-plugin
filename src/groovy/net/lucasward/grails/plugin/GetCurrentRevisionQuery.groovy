@@ -33,8 +33,8 @@ class GetCurrentRevisionQuery {
         this.clazz = clazz
     }
 
-    def query = {
-        AuditReader auditReader = AuditReaderFactory.get(sessionFactory.currentSession)
+    def query(String dataSourceName, DatasourceAwareAuditEventListener datasourceAwareAuditEventListener) {
+        AuditReader auditReader = datasourceAwareAuditEventListener.createAuditReader(sessionFactory.currentSession, dataSourceName)
         return auditReader.getCurrentRevision(clazz, false)
     }
 }
