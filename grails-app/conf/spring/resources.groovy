@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import net.lucasward.grails.plugin.StubSpringSecurityService
-import net.lucasward.grails.plugin.SpringSecurityServiceHolder
+import net.lucasward.grails.plugin.test.StubSpringSecurityService
+import net.lucasward.grails.plugin.test.SpringSecurityServiceHolder
 
 beans = {
 

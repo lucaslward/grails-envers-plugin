@@ -14,21 +14,26 @@
  * limitations under the License.
  */
 
-package net.lucasward.grails.plugin
+package net.lucasward.grails.plugin.test;
 
-/**
- * @author Lucas Ward
- */
-class StubSpringSecurityService {
+import org.hibernate.envers.DefaultRevisionEntity;
+import org.hibernate.envers.RevisionEntity;
 
-    def currentUser
+import javax.persistence.Column;
+import javax.persistence.Entity;
 
-    def getCurrentUser() {
-        return currentUser
+@Entity(name="revinfo")
+@RevisionEntity(SpringSecurityRevisionListener.class)
+public class UserRevisionEntity extends DefaultRevisionEntity {
+
+    @Column(name="user_id")
+    Long userId;
+
+    public long getUserId() {
+        return userId;
     }
 
-    String encodePassword(String password, salt = null) {
-        return password
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
-
 }

@@ -14,26 +14,44 @@
  * limitations under the License.
  */
 
-package net.lucasward.grails.plugin;
-
-import org.hibernate.envers.DefaultRevisionEntity;
-import org.hibernate.envers.RevisionEntity;
+package net.lucasward.grails.plugin.test;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 
-@Entity(name="revinfo")
-@RevisionEntity(SpringSecurityRevisionListener.class)
-public class UserRevisionEntity extends DefaultRevisionEntity {
+@Entity
+public class Book {
+    private Long id;
+    private String title;
+    private String author;
 
-    @Column(name="user_id")
-    Long userId;
-
-    public long getUserId() {
-        return userId;
+    @Id
+    @GeneratedValue
+    public Long getId() {
+        return id;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    @Column
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    @Column
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
     }
 }

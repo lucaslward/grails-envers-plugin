@@ -14,16 +14,21 @@
  * limitations under the License.
  */
 
-package net.lucasward.grails.plugin
+package net.lucasward.grails.plugin.test
 
-import org.hibernate.envers.RevisionListener
+/**
+ * @author Lucas Ward
+ */
+class StubSpringSecurityService {
 
-public class SpringSecurityRevisionListener implements RevisionListener {
+    def currentUser
 
-    public void newRevision(Object entity) {
-        def springSecurityService = SpringSecurityServiceHolder.springSecurityService
-        UserRevisionEntity revisionEntity = (UserRevisionEntity) entity
-        def user = springSecurityService.getCurrentUser()
-        revisionEntity.setUserId(user.getId())
+    def getCurrentUser() {
+        return currentUser
     }
+
+    String encodePassword(String password, salt = null) {
+        return password
+    }
+
 }

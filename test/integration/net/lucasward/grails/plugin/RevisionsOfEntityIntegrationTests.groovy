@@ -16,41 +16,54 @@
 
 package net.lucasward.grails.plugin
 
+import grails.test.mixin.TestMixin
+import grails.test.mixin.integration.IntegrationTestMixin
+import groovy.sql.Sql
+import net.lucasward.grails.plugin.test.SpringSecurityServiceHolder
+import net.lucasward.grails.plugin.test.UserRevisionEntity
 import org.hibernate.Session
 import org.hibernate.SessionFactory
 import org.hibernate.envers.AuditReader
 import org.hibernate.envers.AuditReaderFactory
 import org.hibernate.envers.RevisionType
 import org.hibernate.envers.query.AuditEntity
+import org.junit.After
+import org.junit.Before
+
+import javax.sql.DataSource
+
 import static net.lucasward.grails.plugin.TestData.getCreate2OrderEntriesWith1Modification
 import static net.lucasward.grails.plugin.TestData.getCreateGormCustomerWith2Modifications
 import static net.lucasward.grails.plugin.TestData.getCreateHibernateCustomerWith1Modification
 import static net.lucasward.grails.plugin.TestData.getDeleteAuditTables
 
-class RevisionsOfEntityIntegrationTests extends GroovyTestCase {
+@TestMixin(IntegrationTestMixin)
+class RevisionsOfEntityIntegrationTests {
 
-    def transactional = false
+    static transactional = false
 
     def springSecurityService
 
     SessionFactory sessionFactory
     Session session
     AuditReader reader
+    DataSource dataSource
 
     User currentUser
 
-    protected void setUp() {
-        super.setUp()
+    @Before
+    void setUp() {
         session = sessionFactory.currentSession
         reader = AuditReaderFactory.get(sessionFactory.currentSession)
 
-        currentUser = new User(userName: 'foo', realName: 'Bar').save(flush:  true, failOnError: true)
-        SpringSecurityServiceHolder.springSecurityService.currentUser = currentUser
+        User.withTransaction {
+            currentUser = new User(userName: 'foo', realName: 'Bar').save(flush: true, failOnError: true)
+            SpringSecurityServiceHolder.springSecurityService.currentUser = currentUser
+        }
     }
 
-    protected void tearDown() {
-        super.tearDown()
-
+    @After
+    void tearDown() {
         deleteAuditTables(session)
     }
 
@@ -158,15 +171,96 @@ class RevisionsOfEntityIntegrationTests extends GroovyTestCase {
         assert results[0].revisionEntity == results[1].revisionEntity
     }
 
+    // This fails for Hibernate Envers 4.3.6. It would pass with Envers 3. For some reason, by default, Envers
+    // now stores an Enum by it ordinal value rather than the string value, even though the main domain object stores
+    // it as a string. It can be worked around in Grails by setting the id for the enum property; see the
+    // testEnumRevisionsWithId test for an example of the workaround. We think this is related to the root cause:
+    // https://hibernate.atlassian.net/browse/HHH-8841
+    void testEnumRevisions_HHH_8841() {
+        Customer customer = createHibernateCustomerWith1Modification()
+        create2OrderEntriesWith1Modification(customer, new Date())
+
+        def query = "select * from order_entry where status = 'IN_PROGRESS'"
+        Sql sql = new Sql(dataSource)
+
+        def results = sql.rows(query)
+
+        assert results.size() == 1
+
+        assert results[0].STATUS == "IN_PROGRESS"
+
+        def id = results[0].ID
+        def version = results[0].VERSION
+
+        def audit_query = 'select * from order_entry_aud where id = ? and version = ?'
+        def audit_results = sql.rows(audit_query, [id, version])
+
+        assert audit_results.size() == 1
+        assert audit_results[0].ID == id
+        assert audit_results[0].VERSION == version
+
+        // This fails because Envers is incorrectly storing the ordinal value of the Status Enum, when the main object was
+        // stored as a String.
+        // THIS RESULT SHOULD BE CORRECT, BUT FAILS!
+       // assert audit_results[0].STATUS == "IN_PROGRESS"
+
+        // THIS RESULT IS INCORRECT!
+        assert audit_results[0].STATUS == 1
+    }
+
+    // NOTE: If you set the ID in the Enum to a string, Envers will correctly store the String representation the
+    // same way the main property is stored, because the Grails Enum UserType is activated and bypasses the default
+    // Hibernate/Envers Enum behavior.
+    void testEnumRevisionsWithId_HHH_8841_Workaround() {
+        Customer customer = createHibernateCustomerWith1Modification()
+        create2OrderEntriesWith1Modification(customer, new Date())
+
+        def query = "select * from order_entry where status_with_id = 'IN_PROGRESS'"
+        Sql sql = new Sql(dataSource)
+
+        def results = sql.rows(query)
+
+        assert results.size() == 1
+
+        assert results[0].STATUS_WITH_ID == "IN_PROGRESS"
+
+        //    results
+        def id = results[0].ID
+        def version = results[0].VERSION
+
+        def audit_query = 'select * from order_entry_aud where id = ? and version = ?'
+        def audit_results = sql.rows(audit_query, [id, version])
+
+        assert audit_results.size() == 1
+        assert audit_results[0].ID == id
+        assert audit_results[0].VERSION == version
+
+        // When we add the ID property to the Enum, Envers correctly stores the String value of the Enum.
+        assert audit_results[0].STATUS_WITH_ID == "IN_PROGRESS"
+    }
+
     void testRevisionsWithCollection() {
         Customer customer = createHibernateCustomerWith1Modification()
         create2OrderEntriesWith1Modification(customer, new Date())
 
         def revisions = Customer.findAllRevisionsById(customer.id)
-        assert revisions.size() == 2
+        assert revisions.size() == 4
 
         revisions = OrderEntry.findAllRevisionsByCustomer(customer)
         assert revisions.size() == 3
+
+        def query = 'select * from order_entry'
+        Sql sql = new Sql(dataSource)
+
+        def results = sql.rows(query)
+        results
+
+        def newresults = OrderEntry.findAllRevisions()
+        newresults
+
+        def audit_query = 'select * from order_entry_aud'
+        def audit_results = sql.rows(audit_query)
+        audit_results
     }
 
     //test to see if Envers will work with a field level annotated domain class

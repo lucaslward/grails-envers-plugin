@@ -24,5 +24,5 @@ class ProfessionalPerformanceYear extends AbstractPerformanceYear {
 
     ProfessionalPlayer player
 
-    static belongTo = [player: ProfessionalPlayer]
+    static belongsTo = [player: ProfessionalPlayer]
 }

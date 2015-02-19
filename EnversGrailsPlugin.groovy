@@ -18,30 +18,20 @@ import net.lucasward.grails.plugin.EnversPluginSupport
 import net.lucasward.grails.plugin.RevisionsOfEntityQueryMethod
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.codehaus.groovy.grails.commons.GrailsDomainClass
-import org.codehaus.groovy.grails.orm.hibernate.HibernateEventListeners
 import org.hibernate.SessionFactory
-import net.lucasward.grails.plugin.AuditEventListenerForDefaultDatasource
 
 class EnversGrailsPlugin {
-    // the plugin version
-    def version = "2.1.0"
+    def version = "4.3.6.Final-SNAPSHOT"
+    def grailsVersion = "2.4.0 > *"
 
-    // the version or versions of Grails the plugin is designed for
-    def grailsVersion = "2.1.0 > *"
+    def observe = ['hibernate4']
+    def loadAfter = ['hibernate4']
 
-    // the other plugins this plugin depends on
-    def observe = ['hibernate']
-    def loadAfter = ['hibernate']
-
-    // resources that are excluded from plugin packaging
     def pluginExcludes = [
             "grails-app/views/error.gsp",
             "grails-app/domain/**",
-            "src/groovy/net/lucasward/grails/plugin/StubSpringSecurityService.groovy",
-            "src/groovy/net/lucasward/grails/plugin/SpringSecurityRevisionListener.groovy",
-            "src/groovy/net/lucasward/grails/plugin/SpringSecurityServiceHolder.groovy",
-            "src/java/net/lucasward/grails/plugin/Book.java",
-            "src/java/net/lucasward/grails/plugin/UserRevisionEntity.java",
+            "src/groovy/net/lucasward/grails/plugin/test/**",
+            "src/java/net/lucasward/grails/plugin/test/**",
             "grails-app/conf/hibernate/hibernate.cfg.xml",
             "web-app/**"
     ]
@@ -50,27 +40,7 @@ class EnversGrailsPlugin {
     def authorEmail = ""
     def title = "Grails Envers Plugin"
     def description = 'Plugin to integrate grails with Hibernate Envers'
-
-    // URL to the plugin's documentation
     def documentation = "http://grails.org/plugin/envers"
-
-    def doWithWebDescriptor = { xml ->
-    }
-
-    def doWithSpring = {
-        auditEventListenerForDefaultDatasource(AuditEventListenerForDefaultDatasource)
-
-        hibernateEventListeners(HibernateEventListeners) {
-            listenerMap = [
-                'post-insert': auditEventListenerForDefaultDatasource,
-                'post-update': auditEventListenerForDefaultDatasource,
-                'post-delete': auditEventListenerForDefaultDatasource,
-                'pre-collection-update': auditEventListenerForDefaultDatasource,
-                'pre-collection-remove': auditEventListenerForDefaultDatasource,
-                'post-collection-recreate': auditEventListenerForDefaultDatasource
-            ]
-        }
-    }
 
     def doWithDynamicMethods = { ctx ->
         for (entry in ctx.getBeansOfType(SessionFactory)) {
@@ -97,14 +67,5 @@ class EnversGrailsPlugin {
                 EnversPluginSupport.generateAuditReaderMethods(gc, sessionFactory)
             }
         }
-    }
-
-    def doWithApplicationContext = { applicationContext ->
-    }
-
-    def onChange = { event ->
-    }
-
-    def onConfigChange = { event ->
     }
 }

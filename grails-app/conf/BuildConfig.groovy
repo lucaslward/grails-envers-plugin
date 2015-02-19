@@ -18,13 +18,15 @@ grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
 
-//grails.project.war.file = "target/${appName}-${appVersion}.war"
+grails.project.dependency.resolver = "maven" // or ivy
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
     inherits("global") {
         // uncomment to disable ehcache
         // excludes 'ehcache'
     }
+    checksums true // Whether to verify checksums on resolve
+    legacyResolve false // whether to do a secondary resolve on plugin installation, not advised and here for backwards compatibility
 
     log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
 
@@ -38,17 +40,22 @@ grails.project.dependency.resolution = {
     }
 
     dependencies {
-        compile ('org.hibernate:hibernate-envers:3.6.10.Final') {
-            // Grails already includes all of the necessary dependencies
-            transitive = false
-        }
+        compile ('org.hibernate:hibernate-envers:4.3.6.Final')
+        test "org.grails:grails-datastore-test-support:1.0.2-grails-2.4"
     }
 
     plugins {
-        build(":tomcat:$grailsVersion", ":release:2.0.3", ":rest-client-builder:1.0.2") {
+        build(":tomcat:7.0.55") {
+            export = false
+        }
+        build ':release:3.0.1', ':rest-client-builder:2.0.1', {
             export = false
         }
 
-        compile(":hibernate:$grailsVersion")
+        // To use the Envers plugin, you will also need to add the current Hibernate4 plugin
+        // as a dependency.
+        compile(":hibernate4:4.3.6.1") {
+            export = false
+        }
     }
 }

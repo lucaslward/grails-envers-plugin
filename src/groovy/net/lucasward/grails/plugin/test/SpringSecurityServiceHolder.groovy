@@ -14,27 +14,14 @@
  * limitations under the License.
  */
 
-package net.lucasward.grails.plugin
+package net.lucasward.grails.plugin.test
 
-import org.hibernate.envers.Audited
+public class SpringSecurityServiceHolder {
 
-@Audited
-class Customer {
+    public static def springSecurityService
 
-    String email
-    String name
-    Address address
-    SortedSet<OrderEntry> orders = new TreeSet<OrderEntry>()
-
-    static constraints = {
-        address (blank: true, nullable: true)
-        address component: true
-    }
-
-    static hasMany = [orders: OrderEntry]
-
-    static mapping = {
-        orders cascade: "all,delete-orphan"
+    public setSpringSecurityService(def springSecurityService) {
+        this.springSecurityService = springSecurityService
     }
 
 }
