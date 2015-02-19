@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package net.lucasward.grails.plugin
+package net.lucasward.grails.plugin.test
 
-public class SpringSecurityServiceHolder {
+import org.hibernate.envers.RevisionListener
 
-    public static def springSecurityService
+public class SpringSecurityRevisionListener implements RevisionListener {
 
-    public setSpringSecurityService(def springSecurityService) {
-        this.springSecurityService = springSecurityService
+    public void newRevision(Object entity) {
+        def springSecurityService = SpringSecurityServiceHolder.springSecurityService
+        UserRevisionEntity revisionEntity = (UserRevisionEntity) entity
+        def user = springSecurityService.getCurrentUser()
+        revisionEntity.setUserId(user.getId())
     }
-
 }

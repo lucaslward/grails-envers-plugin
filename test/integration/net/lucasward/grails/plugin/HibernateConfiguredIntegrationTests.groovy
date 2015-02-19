@@ -16,9 +16,14 @@
 
 package net.lucasward.grails.plugin
 
+import grails.test.mixin.TestMixin
+import grails.test.mixin.integration.IntegrationTestMixin
+import net.lucasward.grails.plugin.test.Book
+
 /**
  * Tests to make sure that Hibernate Configured classes still work with this plugin
  */
+@TestMixin(IntegrationTestMixin)
 class HibernateConfiguredIntegrationTests {
 
     void testBasicModification(){
@@ -27,9 +32,11 @@ class HibernateConfiguredIntegrationTests {
             book.save()
         }
 
+        Book retrieved = Book.findByTitle("Dance With Dragons")
+        assert retrieved.author == "George R. R. Martin"
 
         Book book = Book.findByTitle("Dance With Dragons")
-  //      assert book != null
+        assert book != null
 
 //        def results = Book.findAllRevisionsById(book.id)
   //      assert results.size() == 1

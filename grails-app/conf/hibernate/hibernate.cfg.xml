@@ -19,7 +19,7 @@
 <hibernate-configuration>
     <session-factory>
         <mapping package="net.lucasward.grails.plugin" />
-        <mapping class="net.lucasward.grails.plugin.Book" />
-        <mapping class="net.lucasward.grails.plugin.UserRevisionEntity" />
+        <mapping class="net.lucasward.grails.plugin.test.Book" />
+        <mapping class="net.lucasward.grails.plugin.test.UserRevisionEntity" />
     </session-factory>
 </hibernate-configuration>

@@ -26,7 +26,10 @@ class OrderEntry implements Comparable<OrderEntry>{
     int numberOfItems
     Customer customer
 
-    static belongTo = [customer:Customer]
+    OrderStatus status
+    OrderStatusWithId statusWithId
+
+    static belongsTo = [customer:Customer]
 
     @Override
     int compareTo(OrderEntry o) {

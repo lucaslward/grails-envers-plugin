@@ -22,7 +22,7 @@ class AmateurPerformanceYear {
 
     AmateurPlayer player
 
-    static belongTo = [player: AmateurPlayer]
+    static belongsTo = [player: AmateurPlayer]
 
     static mapping = {
         version false

@@ -83,7 +83,7 @@ class EnversPluginSupport {
     static generateFindAllMethods(GrailsDomainClass gc, SessionFactory sessionFactory) {
         def findAllRevisionsBy = new RevisionsOfEntityQueryMethod(sessionFactory, gc.clazz, new PropertyNameCriteria())
         MetaClass mc = gc.getMetaClass()
-        gc.persistantProperties.each { GrailsDomainClassProperty prop ->
+        gc.persistentProperties.each { GrailsDomainClassProperty prop ->
             generateFindAllMethod(prop, mc, findAllRevisionsBy)
         }
         generateFindAllMethod(gc.identifier, mc, new RevisionsOfEntityQueryMethod(sessionFactory, gc.clazz, new IdentityCriteria()))

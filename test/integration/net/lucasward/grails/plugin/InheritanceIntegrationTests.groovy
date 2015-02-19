@@ -16,20 +16,26 @@
 
 package net.lucasward.grails.plugin
 
+import grails.test.mixin.TestMixin
+import grails.test.mixin.integration.IntegrationTestMixin
 import net.lucasward.grails.plugin.inheritance.BaseballPlayer
 import net.lucasward.grails.plugin.inheritance.entry.ProfessionalPerformanceYear
+import net.lucasward.grails.plugin.test.SpringSecurityServiceHolder
 import org.hibernate.Session
 import org.hibernate.SessionFactory
 import org.hibernate.envers.AuditReader
 import org.hibernate.envers.AuditReaderFactory
+import org.junit.After
+import org.junit.Before
 
 /**
  * These tests are specifically designed to test how well envers as configured in this plugin can handle
  * complex inheritance and collections configurations using gorm
  */
-class InheritanceIntegrationTests extends GroovyTestCase {
+@TestMixin(IntegrationTestMixin)
+class InheritanceIntegrationTests {
 
-    def transactional = false
+    static transactional = false
 
     SessionFactory sessionFactory
     Session session
@@ -37,19 +43,21 @@ class InheritanceIntegrationTests extends GroovyTestCase {
 
     User currentUser
     
-    protected void setUp() {
-        super.setUp()
+    @Before
+    void setUp() {
         session = sessionFactory.currentSession
         reader = AuditReaderFactory.get(sessionFactory.currentSession)
 
-        currentUser = new User(userName: 'foo', realName: 'Bar').save(flush: true, failOnError: true)
-        assert currentUser.id
-        SpringSecurityServiceHolder.springSecurityService.currentUser = currentUser
+        User.withTransaction {
+            currentUser = new User(userName: 'foo', realName: 'Bar').save(flush: true, failOnError: true)
+            assert currentUser.id
+            SpringSecurityServiceHolder.springSecurityService.currentUser = currentUser
+        }
+
     }
 
-    protected void tearDown() {
-        super.tearDown()
-
+    @After
+    void tearDown() {
         //delete all the data from these tables in between tests.  Because Envers only writes out on transaction
         //commit, we can't test it without committing the transaction, so we have to clean up afterwards
         session.createSQLQuery("delete from professional_performance_year").executeUpdate()

@@ -111,7 +111,9 @@ class TestData {
                     date: time - 1,
                     amount: 5.3,
                     numberOfItems: 2,
-                    customer: customer)
+                    customer: customer,
+                    status: OrderStatus.INITIAL,
+                    statusWithId: OrderStatusWithId.INITIAL)
             order.save()
             customer.orders << order
             customer.save(flush:true)
@@ -122,7 +124,9 @@ class TestData {
                     date: time,
                     amount: 5.3,
                     numberOfItems: 2,
-                    customer: customer)
+                    customer: customer,
+                    status: OrderStatus.INITIAL,
+                    statusWithId: OrderStatusWithId.INITIAL)
             order.save()
             customer.orders << order
             customer.save(flush:true)
@@ -132,6 +136,8 @@ class TestData {
             OrderEntry order = customer.orders.first()
             order.amount = 22.53
             order.numberOfItems = 3
+            order.status = OrderStatus.IN_PROGRESS
+            order.statusWithId = OrderStatusWithId.IN_PROGRESS
             order.save()
         }
     }
